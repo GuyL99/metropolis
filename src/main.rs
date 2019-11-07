@@ -1,20 +1,22 @@
 use vulkanoing::*;
-//use vulkanoing::Canvas;
 fn main() {
     size(800,600);
-    show();
+    //rect(0,0,0,0);
+    let mut cnt = 0;
+    let draw =move || {
+        /*let mut r=0;
+        let g=0;
+        let mut b=0;
+        if cnt%3==0{
+            r=255;
+            b=100;
+        }
+        cnt+=1;*/
+        //fill(255,0,100);
+        rect(0,0,200,200);
+        fill(255,0,100);
+        rect(400,400,200,200);
+        noFill();
+    };
+    show(draw);
 }
-/*
-use std::ops::Add;
-use std::ops::Sub;
-use std::ops::Mul;
-use std::ops::Div;
-fn map<T>(point:[T;2],scale:[T;2])->[f32;2]
-    where T:Add+Sub+Div+Mul+Sub<T, Output =f32>+Add<T, Output =f32>+Div<T, Output = f32>+Mul<T, Output = f32>+Copy+Clone+PartialEq{
-        let new_point:[f32;2] = [(point[0]/scale[0]) as f32,(point[1]/scale[1]) as f32];
-        [(new_point[0]/2.0)-1.0,(new_point[1]/2.0)-1.0]
-}
-fn map_colors<T>(point:[T;2],scale:[T;2])->[f32;2]
-    where T:Add+Sub+Div+Mul+Sub<T, Output =f32>+Add<T, Output =f32>+Div<T, Output = f32>+Mul<T, Output = f32>+Copy+Clone+PartialEq{
-        [(point[0]/scale[0]) as f32,(point[1]/scale[1]) as f32]
-}*/

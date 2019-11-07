@@ -50,8 +50,8 @@ use vulkano_win::VkSurfaceBuild;
 use winit::event_loop::{EventLoop, ControlFlow};
 use winit::window::{Window, WindowBuilder};
 use winit::event::{Event, WindowEvent};
+use winit::dpi::LogicalSize;
 use std::sync::Arc;
-use std::sync::Mutex;
 
 //use vulkano::framebuffer::RenderPassDesc;
 use vulkano::pipeline::GraphicsPipelineAbstract;
@@ -74,7 +74,7 @@ pub struct Preper{
     pub recreate_swapchain:bool,
     pub previous_frame_end:Option<Box<dyn GpuFuture>>
 }
-pub fn init()->Preper{
+pub fn init(w:u16,h:u16)->Preper{
     let instance = {
         let extensions = vulkano_win::required_extensions();
         Instance::new(None, &extensions, None).unwrap()
@@ -82,7 +82,7 @@ pub fn init()->Preper{
     let physical = PhysicalDevice::enumerate(&instance).next().unwrap();
     println!("Using device: {} (type: {:?})", physical.name(), physical.ty());
     let events_loop = EventLoop::new();
-    let surface = WindowBuilder::new().build_vk_surface(&events_loop, instance.clone()).unwrap();
+    let surface = WindowBuilder::new().with_inner_size(LogicalSize{width:w as f64,height:h as f64}).build_vk_surface(&events_loop, instance.clone()).unwrap();
     let window = surface.window();
     let queue_family = physical.queue_families().find(|&q| {
         q.supports_graphics() && surface.is_supported(q).unwrap_or(false)
@@ -137,6 +137,7 @@ pub fn init()->Preper{
         .vertex_input_single_buffer::<Vertex>()
         .vertex_shader(vs.main_entry_point(), ())
         .line_list()
+        //.line_width_dynamic()
         .viewports_dynamic_scissors_irrelevant(1)
         .fragment_shader(fs.main_entry_point(), ())
         .render_pass(Subpass::from(render_pass.clone(), 0).unwrap())
@@ -170,58 +171,164 @@ fn window_size_dependent_setup(
         ) as Arc<dyn FramebufferAbstract + Send + Sync>
     }).collect::<Vec<_>>()
 }
-use lazy_static::*;
-lazy_static!{
-    static ref STROKE_VERTECIES:Mutex<Vec<Vertex>>= Mutex::new(vec![]);
-    static ref FILL_VERTECIES:Mutex<Vec<Vertex>> = Mutex::new(vec![]);
-}
+static mut CANVAS:Canvas = Canvas{size:(0,0),stroke:true,color:[0.0,0.0,0.0,1.0],stroke_weight:1,fill:false,fill_color:[1.0,1.0,1.0,1.0],background_color:[1.0,1.0,1.0,1.0],fps:30,resizeable:false};
+static mut FILL_VERTECIES:Option<Vec<Vertex>> = None; 
+static mut STROKE_VERTECIES:Option<Vec<Vertex>> = None; 
 pub fn add_to_fill(pusher:Vertex){
-    FILL_VERTECIES.lock().unwrap().push(pusher);
+    unsafe{
+    match &FILL_VERTECIES{
+        None=>{FILL_VERTECIES = Some(vec![pusher]);},
+        Some(vec1)=>{let mut vec2 = vec1.clone();
+            vec2.push(pusher);
+            FILL_VERTECIES = Some(vec2);}
+    };
+    }
 }
 pub fn add_to_stroke(pusher:Vertex){
-    STROKE_VERTECIES.lock().unwrap().push(pusher);
+    unsafe{
+    match &STROKE_VERTECIES{
+        None=>{STROKE_VERTECIES = Some(vec![pusher]);},
+        Some(vec1)=>{let mut vec2 = vec1.clone();
+            vec2.push(pusher);
+            STROKE_VERTECIES = Some(vec2);}
+    };
+    }
 }
-lazy_static!{
-    pub static ref CANVAS:Canvas = Canvas{size:(0,0),stroke:true,color:[1.0,1.0,1.0,1.0],stroke_weight:1,fill:false,fill_color:[1.0,1.0,1.0,1.0],background_color:[1.0,1.0,1.0,1.0],fps:30,resizeable:false};
+pub fn zero_out(){
+    unsafe{
+    match &STROKE_VERTECIES{
+        None=>{},
+        Some(_vec1)=>{let vec2 = vec![];
+            STROKE_VERTECIES = Some(vec2);}
+    };
+    match &FILL_VERTECIES{
+        None=>{},
+        Some(_vec1)=>{let vec2 = vec![];
+            FILL_VERTECIES = Some(vec2);}
+    };
+    }
 }
 #[derive(Copy,Clone,PartialEq)]
-pub struct Canvas{
+struct Canvas{
     pub size:(u16,u16),
-    stroke:bool,
-    color:[f32;4],
-    stroke_weight:u8,
-    fill:bool,
-    fill_color:[f32;4],
-    background_color:[f32;4],
-    fps:u8,
-    resizeable:bool,
+    pub stroke:bool,
+    pub color:[f32;4],
+    pub stroke_weight:u8,
+    pub fill:bool,
+    pub fill_color:[f32;4],
+    pub background_color:[f32;4],
+    pub fps:u8,
+    pub resizeable:bool,
 }
-/*
-pub fn size(width:u16,height:u16)->Canvas{
-    Canvas{size:(width,height),stroke:true,color:[1.0,1.0,1.0,1.0],stroke_weight:1,fill:false,fill_color:[1.0,1.0,1.0,1.0],background_color:[1.0,1.0,1.0,1.0],fps:30,resizeable:false}
-    }*/
 pub fn size(width:u16,height:u16){
-    CANVAS.set_size(width,height);
+    unsafe{
+        CANVAS.size = (width,height);
+    }
 }
-pub fn show(){
-    CANVAS.show();
+pub fn show<F>(draw_fn:F)
+    where F:FnMut()+ 'static{
+    unsafe{
+        CANVAS.show(draw_fn);
+    }
+}
+mod mapping;
+use mapping::map;
+pub fn rect(x:u16,y:u16,width:u16,height:u16){
+    unsafe{
+        let scale = [CANVAS.size.0,CANVAS.size.1];
+        let t_l = map([x,y],scale);
+        let b_r = map([x+width,y+height],scale);
+        let t_r = map([x+width,y],scale);
+        let b_l = map([x,y+height],scale);
+        if CANVAS.fill{
+            let color = CANVAS.fill_color;
+            add_to_fill(Vertex{ position: b_r ,color});
+            add_to_fill(Vertex{ position: t_r ,color});
+            add_to_fill(Vertex{ position: t_l ,color});
+            add_to_fill(Vertex{ position: t_l ,color});
+            add_to_fill(Vertex{ position: b_l ,color});
+            add_to_fill(Vertex{ position: b_r ,color});
+        }
+        if CANVAS.stroke{
+            let color = CANVAS.color;
+            add_to_stroke(Vertex{ position: t_l ,color});
+            add_to_stroke(Vertex{ position: t_r ,color});
+            add_to_stroke(Vertex{ position: t_r ,color});
+            add_to_stroke(Vertex{ position: b_r ,color});
+            add_to_stroke(Vertex{ position: b_r ,color});
+            add_to_stroke(Vertex{ position: b_l ,color});
+            add_to_stroke(Vertex{ position: b_l ,color});
+            add_to_stroke(Vertex{ position: t_l ,color});
+        }
+    }
+}
+pub fn line(x:u16,y:u16,x2:u16,y2:u16){
+    unsafe{
+        let scale = [CANVAS.size.0,CANVAS.size.1];
+        let srt = map([x,y],scale);
+        let fin = map([x2,y2],scale);
+        let color = CANVAS.color;
+        add_to_stroke(Vertex{ position: srt ,color});
+        add_to_stroke(Vertex{ position: fin ,color});
+    }
+}
+pub fn triangle(_pt1:(u16,u16),_pt2:(u16,u16),_pt3:(u16,u16)){
+    unsafe{
+        let scale = [CANVAS.size.0,CANVAS.size.1];
+        let pt1 = map([_pt1.0,_pt1.1],scale);
+        let pt2 = map([_pt2.0,_pt2.1],scale);
+        let pt3 = map([_pt3.0,_pt3.1],scale);
+        if CANVAS.fill{
+            let color = CANVAS.fill_color;
+            add_to_fill(Vertex{ position: pt1 ,color});
+            add_to_fill(Vertex{ position: pt2 ,color});
+            add_to_fill(Vertex{ position: pt3 ,color});
+        }
+        if CANVAS.stroke{
+            let color = CANVAS.color;
+            add_to_stroke(Vertex{ position: pt1 ,color});
+            add_to_stroke(Vertex{ position: pt2 ,color});
+            add_to_stroke(Vertex{ position: pt2 ,color});
+            add_to_stroke(Vertex{ position: pt3 ,color});
+            add_to_stroke(Vertex{ position: pt3 ,color});
+            add_to_stroke(Vertex{ position: pt1 ,color});
+        }
+    }
+}
+pub fn fill(r:u8,g:u8,b:u8){
+    unsafe{
+        CANVAS.fill = true;
+        CANVAS.fill_color = mapping::map_colors([r,g,b,255]);
+    }
+}
+pub fn stroke(r:u8,g:u8,b:u8){
+    unsafe{
+        CANVAS.stroke = true;
+        CANVAS.color = mapping::map_colors([r,g,b,255]);
+    }
+}
+pub fn background(r:u8,g:u8,b:u8){
+    unsafe{
+        CANVAS.background_color = mapping::map_colors([r,g,b,255]);
+    }
+}
+#[allow(non_snake_case)]
+pub fn strokeWeight(weight:u8){
+    unsafe{
+        CANVAS.stroke_weight = weight; 
+    }
+}
+#[allow(non_snake_case)]
+pub fn noFill(){
+    unsafe{
+        CANVAS.fill = false; 
+    }
 }
 impl Canvas{
-    pub fn set_size(mut self,width:u16,height:u16){
-        self.size =(width,height);
-    }
-    pub fn show(self){
-        let mut env = init();
+    pub fn show<F>(self,mut draw_fn:F)
+        where F:FnMut()+ 'static{
+        let mut env = init(self.size.0,self.size.1);
         let events_loop = EventLoop::new();
-        /*let color = [0.0,1.0,0.0,1.0];
-        add_to_fill(Vertex { position: [1.00, 1.0], color});
-        add_to_fill(Vertex { position: [1.00, 0.0] ,color});
-        add_to_fill(Vertex { position: [0.00, 0.0] ,color});
-        add_to_fill(Vertex { position: [0.00, 0.0] ,color});
-        add_to_fill(Vertex { position: [0.00, 1.0] ,color});
-        add_to_fill(Vertex { position: [1.00, 1.0] ,color});*/
-        let stroke_vertex_buffer = CpuAccessibleBuffer::from_iter(env.device.clone(), BufferUsage::all(),STROKE_VERTECIES.lock().unwrap().iter().cloned()).unwrap();
-        let fill_vertex_buffer = CpuAccessibleBuffer::from_iter(env.device.clone(), BufferUsage::all(),FILL_VERTECIES.lock().unwrap().iter().cloned()).unwrap();
         events_loop.run(move |ev, _, cf| {
             *cf = ControlFlow::Poll;
             match ev {
@@ -229,6 +336,21 @@ impl Canvas{
                 Event::WindowEvent { event: WindowEvent::Resized(_), .. } => env.recreate_swapchain = true,
                 _ => {},
             }
+            unsafe{
+            match &STROKE_VERTECIES{
+                Some(vec1)=>{
+                STROKE_VERTECIES=Some(vec1.to_vec())},
+                None=>{let vec2 = vec![];
+                STROKE_VERTECIES = Some(vec2);}
+            };
+            match &FILL_VERTECIES{
+                Some(vec1)=>{
+                FILL_VERTECIES = Some(vec1.to_vec())},
+                None=>{let vec2 = vec![];
+                 FILL_VERTECIES = Some(vec2);}
+            };
+            let stroke_vertex_buffer = CpuAccessibleBuffer::from_iter(env.device.clone(), BufferUsage::all(),STROKE_VERTECIES.clone().unwrap().iter().cloned()).unwrap();
+            let fill_vertex_buffer = CpuAccessibleBuffer::from_iter(env.device.clone(), BufferUsage::all(),FILL_VERTECIES.clone().unwrap().iter().cloned()).unwrap();
             let window = env.surface.window();
             env.previous_frame_end.as_mut().unwrap().cleanup_finished();
             if env.recreate_swapchain {
@@ -283,6 +405,9 @@ impl Canvas{
                     env.previous_frame_end = Some(Box::new(sync::now(env.device.clone())) as Box<_>);
                 }
             }
+            }
+            zero_out();
+            draw_fn();
         });
     }
 }
