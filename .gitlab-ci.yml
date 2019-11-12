@@ -18,7 +18,7 @@ test:
   script:
     - rustc --version
     - cargo --version
-    - cargo build --release
+    - cargo build --all
 
 pages:
   stage: doc
@@ -31,12 +31,6 @@ pages:
       - public
   only:
     - master
-build:
-stage: build
-  script:
-    - rustc --version
-    - cargo --version
-    - cargo build --all
 cache:
   paths:
     - apt/
