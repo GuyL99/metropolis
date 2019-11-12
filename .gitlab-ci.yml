@@ -18,7 +18,7 @@ test:
   script:
     - rustc --version
     - cargo --version
-    - cargo test --verbose
+    #- cargo test --verbose
     - cargo build --release
 
 pages:
@@ -32,7 +32,12 @@ pages:
       - public
   only:
     - master
-
+build:
+stage: test
+  script:
+    - rustc --version
+    - cargo --version
+    - cargo build --all
 cache:
   paths:
     - apt/
