@@ -32,7 +32,7 @@ pages:
   only:
     - master
 build:
-stage: test
+stage: build
   script:
     - rustc --version
     - cargo --version
