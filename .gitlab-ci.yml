@@ -9,8 +9,8 @@ variables:
   CARGO_HOME: $CI_PROJECT_DIR/cargo
   APT_CACHE_DIR: $CI_PROJECT_DIR/apt
 
-before_script:
-  - apt-get update -yq
+#before_script:
+ # - apt-get update -yq
   #- apt-get install -o dir::cache::archives="$APT_CACHE_DIR" -y {{ DEPENDENCIES }}
 
 test:
@@ -18,7 +18,8 @@ test:
   script:
     - rustc --version
     - cargo --version
-    - cargo build --all
+    - cargo test --verbose
+    - cargo build --release
 
 pages:
   stage: doc
@@ -31,6 +32,7 @@ pages:
       - public
   only:
     - master
+
 cache:
   paths:
     - apt/

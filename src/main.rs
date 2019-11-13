@@ -7,12 +7,12 @@ fn main() {
     let mut posy = 0;
     let draw =move || {
         spd+=1;
-        if posy+100< height{
+        if posy+50< height{
             posy+=spd;
         }
         fill(255,0,100);
         circle(400,posy,50);
-        line(800,800,posy,posy);
+        //line(800,800,posy,posy);
     };
     show(draw);
 }

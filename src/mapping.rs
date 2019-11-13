@@ -1,7 +1,3 @@
-/*use std::ops::Add;
-use std::ops::Sub;
-use std::ops::Mul;
-use std::ops::Div;*/
 pub fn map(point:[u16;2],scale:[u16;2])->[f32;2]{
     //where T:Add+Sub+Div+Mul+Sub<T, Output =T>+Add<T, Output =T>+Div<T, Output = T>+Mul<T, Output = T>+Copy+Clone+PartialEq{
         let new_point:[f32;2] = [(point[0] as f32/scale[0] as f32),(point[1] as f32/scale[1] as f32) ];
