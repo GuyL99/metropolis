@@ -10,8 +10,10 @@ fn main() {
         if posy+50< height{
             posy+=spd;
         }
-        fill(255,0,100);
-        circle(400,posy,50);
+        //fill(255,0,100);
+        //fill(0,0,00);
+        //circle(400,posy,50);
+        arc(500,500,100,180);
         //line(800,800,posy,posy);
     };
     show(draw);
