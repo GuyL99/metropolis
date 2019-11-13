@@ -12,7 +12,7 @@ variables:
 before_script:
   - apt-get update -yq
   - apt-get install --yes cmake
-  - apt install libvulkan1 mesa-vulkan-drivers vulkan-utils
+  #- apt install libvulkan1 mesa-vulkan-drivers vulkan-utils
   #- apt-get install -o dir::cache::archives="$APT_CACHE_DIR" -y {{ DEPENDENCIES }}
 
 test:
