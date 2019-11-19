@@ -6,6 +6,9 @@ mod mapping;
 use mapping::*;
 mod canvas;
 use canvas::*;
+pub mod math;
+pub mod color;
+use color::*;
 fn add_to_fill(pusher:Vertex){
     unsafe{
     match &FILL_VERTECIES{
@@ -100,6 +103,45 @@ pub fn triangle(_pt1:(u16,u16),_pt2:(u16,u16),_pt3:(u16,u16)){
         }
     }
 }
+pub fn ellipse(x:u16,y:u16,a:u16,b:u16){
+    unsafe{
+    let scale = [CANVAS.size.0,CANVAS.size.1];
+    if CANVAS.stroke && !(CANVAS.fill &&CANVAS.color == CANVAS.fill_color){
+        let mut pt_x = x as f32 + a as f32;
+        let mut pt_y = y as f32;
+        for an in (0..360).step_by(6){
+            let ptx = x as f32+((an as f32/360.0)*6.28).cos()*a as f32;
+            let pty = y as f32+((an as f32/360.0)*6.28).sin()*b as f32;
+            add_to_stroke(Vertex{ position:map_circ([pt_x,pt_y],scale),color:CANVAS.color});
+            add_to_stroke(Vertex{ position:map_circ([ptx,pty],scale),color:CANVAS.color});
+            pt_x =ptx;
+            pt_y = pty;
+        }
+        add_to_stroke(Vertex{ position:map_circ([pt_x,pt_y],scale),color:CANVAS.color});
+        pt_x = x as f32+a as f32+0.5;
+        pt_y = y as f32+0.5;
+        add_to_stroke(Vertex{ position:map_circ([pt_x,pt_y],scale),color:CANVAS.color});
+    }
+    if CANVAS.fill{
+        let mut pt_x = x as f32 + a as f32;
+        let mut pt_y = y as f32;
+        for an in (0..360).step_by(6){
+            let ptx = x as f32+((an as f32/360.0)*6.28).cos()*a as f32;
+            let pty = y as f32+((an as f32/360.0)*6.28).sin()*b as f32;
+            add_to_fill(Vertex{ position:map_circ([pt_x,pt_y],scale),color:CANVAS.fill_color});
+            add_to_fill(Vertex{ position:map_circ([ptx,pty],scale),color:CANVAS.fill_color});
+            add_to_fill(Vertex{ position:map_circ([x as f32,y as f32],scale),color:CANVAS.fill_color});
+            pt_x =ptx;
+            pt_y = pty;
+        }
+        add_to_fill(Vertex{ position:map_circ([pt_x,pt_y],scale),color:CANVAS.fill_color});
+        pt_x = x as f32+a as f32+0.5;
+        pt_y = y as f32+0.5;
+        add_to_fill(Vertex{ position:map_circ([pt_x,pt_y],scale),color:CANVAS.fill_color});
+        add_to_fill(Vertex{ position:map_circ([x as f32,y as f32],scale),color:CANVAS.fill_color});
+    }
+    }
+}
 pub fn circle(x:u16,y:u16,rad:u16){
     unsafe{
     let scale = [CANVAS.size.0,CANVAS.size.1];
@@ -150,21 +192,33 @@ pub fn point(x:u16,y:u16){
     CANVAS.fill = fil;
     }
 }
-pub fn fill(r:u8,g:u8,b:u8){
+pub fn fill(color:Color){
+    let r = color.get_r();
+    let g = color.get_g();
+    let b = color.get_b();
+    let a = color.get_a();
     unsafe{
         CANVAS.fill = true;
-        CANVAS.fill_color = mapping::map_colors([r,g,b,255]);
+        CANVAS.fill_color = mapping::map_colors([r,g,b,a]);
     }
 }
-pub fn stroke(r:u8,g:u8,b:u8){
+pub fn stroke(color:Color){
+    let r = color.get_r();
+    let g = color.get_g();
+    let b = color.get_b();
+    let a = color.get_a();
     unsafe{
         CANVAS.stroke = true;
-        CANVAS.color = mapping::map_colors([r,g,b,255]);
+        CANVAS.color = mapping::map_colors([r,g,b,a]);
     }
 }
-pub fn background(r:u8,g:u8,b:u8){
+pub fn background(color:Color){
+    let r = color.get_r();
+    let g = color.get_g();
+    let b = color.get_b();
+    let a = color.get_a();
     unsafe{
-        CANVAS.background_color = mapping::map_colors([r,g,b,255]);
+        CANVAS.background_color = mapping::map_colors([r,g,b,a]);
     }
 }
 #[allow(non_snake_case)]

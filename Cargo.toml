@@ -1,8 +1,16 @@
 [package]
-name = "vulkanoing"
+name = "metropolis"
 version = "0.1.0"
 authors = ["guy <guy123levinger@gmail.com>"]
 edition = "2018"
+description = "A high level easy to use graphics renderer"
+repository = "http://github.com/GuyL99/metropolis"
+readme = "README.md"
+categories = ["games","graphics","gui"]
+keywords = ["cli", "api","gui","gamedev","graphics"]
+license = "MIT OR Apache-2.0"
+documentation = "https://docs.rs/metropolis/0.1.0/metro"
+
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -11,8 +19,19 @@ vulkano = "0.14.0"
 vulkano-shaders = "0.14.0"
 vulkano-win = "0.15.0"
 winit = "0.20.0-alpha3"
-lazy_static= "1.4"
-#vulkano = "0.13"
-#vulkano-shaders = "0.13"
-#vulkano-win = "0.13"
-#winit = "0.19"
+
+
+[profile.dev]
+opt-level = 0
+
+[profile.release]
+opt-level = 3
+
+
+[lib]
+name = "metro"
+path = "src/lib.rs"
+test = true
+doctest = true
+bench = true
+doc = true
