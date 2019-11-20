@@ -30,8 +30,8 @@ pub fn rgba(r:u8,g:u8,b:u8,a:u8)->Color{
 ///retrun Color sruct from grayscale values - need fixing
 pub fn grayscale(gr:u8)->Color{
     Color{
-        r:(gr as f32 *0.3) as u8,
-        g:(gr as f32 *0.59) as u8,
-        b:(gr as f32 *0.11) as u8,
+        r:gr,
+        g:gr,//(gr as f32 *0.59) as u8,
+        b:gr,//(gr as f32 *0.11) as u8,
         a:255}
 }

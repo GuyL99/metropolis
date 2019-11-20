@@ -48,7 +48,10 @@ impl Canvas{
         let mut env = init(self.size.0,self.size.1);
         let events_loop = EventLoop::new();
         events_loop.run(move |ev, _, cf| {
+        loop{
             *cf = ControlFlow::Poll;
+            //let mut cf = &(ControlFlow::Poll);
+            //let event = winit::event::WindowEvent;
             match ev {
                 Event::WindowEvent { event: WindowEvent::CloseRequested, .. } => *cf = ControlFlow::Exit,
                 Event::WindowEvent { event: WindowEvent::Resized(_), .. } => env.recreate_swapchain = true,
@@ -126,7 +129,7 @@ impl Canvas{
             }
             zero_out();
             draw_fn();
-        });
+        }});
     }
 }
 fn window_size_dependent_setup(
