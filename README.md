@@ -40,6 +40,7 @@ Next comes the setup(here I declare the varibles I will be using insode the loop
 	let mut acc = 1;
 	let mut posy = 0;
 	background(grayscale(220));
+```
 Next comes the draw function, this function gets looped over so what's in it should be decided accordingly
 ```rust
     	let draw =move || {
