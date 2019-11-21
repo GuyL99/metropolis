@@ -1,5 +1,3 @@
-use metro::*;
 use metro::color::*;
-fn main() {
-
-}
+use metro::*;
+fn main() {}
