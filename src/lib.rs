@@ -31,8 +31,9 @@
 //!   fill(rgb(255,0,100));
 //!   circle(400,posy,100);
 //!  };
-//!  //finally I send the draw function into show like that
-//!   show(draw);
+//!  //finally I send the draw function into show like that(should be used without the commenting,
+//! //it's commented because it loopes over with no timeout 
+//!   //show(draw);
 //!}
 //!```
 mod vertex;
