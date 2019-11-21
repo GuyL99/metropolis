@@ -62,7 +62,7 @@ If you noticed - this program displays gravity working on an ellipse
 
 ### If you want to checkout the crate further that you should take a look in the [examples](https://github.com/GuyL99/metropolis/tree/master/examples) folder.
 ## Currently being developed:
-1)dynamic line width. 
+1)dynamic line width.
 2)up the circle and ellipse efficiency.
 3)add more drawing functions.
 4)add a text module.
