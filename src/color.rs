@@ -1,3 +1,4 @@
+///a struct used for the coloring in this create
 #[derive(Copy,Clone,PartialEq,PartialOrd,Eq,Ord)]
 pub struct Color{
     r:u8,

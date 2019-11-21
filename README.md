@@ -1,7 +1,7 @@
 # Metropolis
 ## What is it and what is it for?
 
-Metropolis is a graphics renderer written in rust, utilizing [vulkano](https://crates.io/crates/vulkano) and [winit](https://crates.io/crates/winit),
+Metropolis is an easy to use high level graphics renderer written in rust, utilizing [vulkano](https://crates.io/crates/vulkano) and [winit](https://crates.io/crates/winit),
 I still have some work to do on it and I am currently still developing it and would love community input.
 Later I hope to develop a game engine using it but first I'll finish the renderer.
 ## How to install it?
