@@ -1,5 +1,5 @@
 # Metropolis
-![crates.io](https://img.shields.io/crates/v/metropolis.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![doc.rs](https://docs.rs/metropolis/badge.svg?version=0.1.1)
+![crates.io](https://img.shields.io/crates/v/metropolis.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![doc.rs](https://docs.rs/metropolis/badge.svg?version=0.1.2)
 ## What is it and what is it for?
 
 Metropolis is an easy to use high level graphics renderer written in rust, utilizing [vulkano](https://crates.io/crates/vulkano) and [winit](https://crates.io/crates/winit),
@@ -17,7 +17,7 @@ Later I hope to develop a game engine using it but first I'll finish the rendere
 Add the following to your Cargo.toml:
 ```rust
 [dependencies]
-metropolis = "0.1.1"
+metropolis = "0.1.2"
 ```
 First use import the crate:
 ```rust
@@ -49,7 +49,7 @@ Next comes the draw function, this function gets looped over so what's in it sho
         	if posy+50< height{
 	            posy+=spd;
         	}
- 	     	fill(rgb(255,0.1.1));
+ 	     	fill(rgb(255,0.1.2));
 	       	ellipse(400,posy,200,100);
 	};
 ```
