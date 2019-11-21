@@ -399,7 +399,7 @@ dependencies = [
 
 [[package]]
 name = "metropolis"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "vulkano 0.14.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "vulkano-shaders 0.14.0 (registry+https://github.com/rust-lang/crates.io-index)",
