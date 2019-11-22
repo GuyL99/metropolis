@@ -1,6 +1,6 @@
 [package]
 name = "metropolis"
-version = "0.1.6"
+version = "0.1.7"
 authors = ["guy <guy123levinger@gmail.com>"]
 edition = "2018"
 description = "A high level easy to use graphics renderer"
@@ -9,7 +9,7 @@ readme = "README.md"
 categories = ["games","graphics","gui"]
 keywords = ["cli", "api","gui","gamedev","graphics"]
 license = "MIT"
-documentation = "https://docs.rs/metropolis/0.1.6/metro"
+documentation = "https://docs.rs/metropolis/0.1.7/metro"
 gitlab = { repository = "https://gitlab.com/GuyL99/graphics-renderer", branch = "master" }
 
 
@@ -32,5 +32,4 @@ opt-level = 3
 [lib]
 name = "metro"
 path = "src/lib.rs"
-bench = true
 doc = true
