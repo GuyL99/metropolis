@@ -1,5 +1,5 @@
 # Metropolis
-![crates.io](https://img.shields.io/crates/v/metropolis.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![doc.rs](https://docs.rs/metropolis/badge.svg?version=0.1.4)
+![crates.io](https://img.shields.io/crates/v/metropolis.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![doc.rs](https://docs.rs/metropolis/badge.svg?version=0.1.5)
 ## What is it and what is it for?
 
 Metropolis is an easy to use high level graphics renderer written in rust, utilizing [vulkano](https://crates.io/crates/vulkano) and [winit](https://crates.io/crates/winit),
@@ -11,13 +11,32 @@ Later I hope to develop a game engine using it but first I'll finish the rendere
 ```console
 :~$ cargo install metropolis
 ```
+### then install the vulkan required dependencies:
+### if you have linux debian/ubuntu:
+```console
+:~$ apt install libvulkan1 mesa-vulkan-drivers vulkan-utils
+```
+### if you have fedora:
+```console
+# dnf install vulkan vulkan-info
+```
+### if you have arch linux:
+```console
+# pacman -S vulkan-radeon lib32-vulkan-radeon
+```
+##if you have mac:
+```console
+:~$ xcode-select --install
+:~$ brew install cmake
+```
+###for windows just install ninja.
 
 ## Usage
 
 Add the following to your Cargo.toml:
 ```rust
 [dependencies]
-metropolis = "0.1.4"
+metropolis = "0.1.5"
 ```
 First use import the crate:
 ```rust
