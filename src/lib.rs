@@ -9,8 +9,8 @@
 //!and finally send it to the show function(designed to loop over the draw function).
 //!like this (grvaity example):
 //!```
-//!use metro::*;
-//!use metro::color::*;
+//!use metropolis::*;
+//!use metropolis::color::*;
 //!fn main() {
 //!   //here I set up the background, height, width,spd,and the position on y
 //!   let height = 900;

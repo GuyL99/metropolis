@@ -1,5 +1,5 @@
 # Metropolis
-![crates.io](https://img.shields.io/crates/v/metropolis.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![doc.rs](https://docs.rs/metropolis/badge.svg?version=0.1.8)
+![crates.io](https://img.shields.io/crates/v/metropolis.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![doc.rs](https://docs.rs/metropolis/badge.svg?version=0.2.0)
 ## What is it and what is it for?
 
 Metropolis is an easy to use high level graphics renderer written in rust, utilizing [vulkano](https://crates.io/crates/vulkano) and [winit](https://crates.io/crates/winit),
@@ -65,13 +65,13 @@ PI - a constant containing the value of pi</br>
 Add the following to your Cargo.toml:
 ```rust
 [dependencies]
-metropolis = "0.1.8"
+metropolis = "0.2.0"
 ```
 First use import the crate:
 ```rust
 extern crate metro;  
-use metro::*; 
-use metro::color::*; 
+use metropolis::*; 
+use metropolis::color::*; 
 //if you want some math functions use math as well
 use metro::math::*;
 ```

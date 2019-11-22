@@ -1,4 +1,4 @@
-use metro::color::*;
-use metro::math::*;
-use metro::*;
+use metropolis::color::*;
+use metropolis::math::*;
+use metropolis::*;
 fn main() {}

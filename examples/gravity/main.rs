@@ -1,5 +1,5 @@
-use metro::color::*;
-use metro::*;
+use metropolis::color::*;
+use metropolis::*;
 fn main() {
     let height = 900;
     let width = 1200;
