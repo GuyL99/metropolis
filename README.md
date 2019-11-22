@@ -24,13 +24,42 @@ Later I hope to develop a game engine using it but first I'll finish the rendere
 ```console
 # pacman -S vulkan-radeon lib32-vulkan-radeon
 ```
-##if you have mac:
+### if you have mac:
 ```console
 :~$ xcode-select --install
 :~$ brew install cmake
 ```
-###for windows just install ninja.
-
+### for windows just install ninja.
+## Documentation:
+### Due to a bug in docs.rs the crate does not have a docs.rs documentation so I put the gist in here:
+#### regular functions(to be used directly from use metro):
+arc- create an arc from a circle, recieves the center of the circle and the radius and the degrees covered by the arc (360 degree arc is a full circle).
+background- sets the background color(using the color struct).
+circle-recieves the x and y of the center of the circle and the radius and builds it with them.
+ellipse	-recieves the x and the y of the center of the ellipse and the width and height of the ellipse and creates it accordingly
+fill-enables fill and receives the color of the fill(the struct color) and sets the fill color to be the color.
+line-recieves the x and y of the top point and then the x and the y of the bottom point and creates a line between them.
+noFill-disables fill on the canvas.
+noStroke-disables stroke on the canvas.
+point-recieves the x and the y and makes a small circle in the spot(size depends on strokeWeight).
+rect-recieves the x and y of the top spot and then the width and height of the rectangle you want built.
+show-this is the function used to run the animation
+size-creates the canvas with the width and height sent to this function
+stroke-enables stroke and receives the color of the stroke(the struct color) and sets the stroke color to be the color.
+strokeWeight-sets the stroke weight(the width of lines and points)
+triangle-recieves the x and y of the 3 points of the triangle and creates it based on them
+#### functions from the color module:
+grayscale-retrun Color sruct from grayscale values
+rgb-retrun Color sruct from rgb values
+rgba-retrun Color sruct from rgba values
+#### functions from the math module:
+cos-uses sin(90-alpha) in order to calculate cosine
+deg-converts radians to degrees
+rad-converts degrees to radians
+sin-uses Taylor's series to determine sinus at the x, for now accepts f32, in the future also u/i
+tan-uses sin(x)/cos(x) in order to calculate tan(x)
+TWO_PI - a constant containing two pi
+PI - a constant containing the value of pi
 ## Usage
 
 Add the following to your Cargo.toml:
