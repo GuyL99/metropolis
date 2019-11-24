@@ -1,5 +1,5 @@
 # Metropolis
-![crates.io](https://img.shields.io/crates/v/metropolis.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![doc.rs](https://docs.rs/metropolis/badge.svg?version=0.2.0)
+![crates.io](https://img.shields.io/crates/v/metropolis.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![doc.rs](https://docs.rs/metropolis/badge.svg?version=0.3.0)
 ## What is it and what is it for?
 
 Metropolis is an easy to use high level graphics renderer written in rust, utilizing [vulkano](https://crates.io/crates/vulkano) and [winit](https://crates.io/crates/winit),
@@ -36,7 +36,7 @@ Later I hope to develop a game engine using it but first I'll finish the rendere
 Add the following to your Cargo.toml:
 ```rust
 [dependencies]
-metropolis = "0.2.0"
+metropolis = "0.3.0"
 ```
 First use import the crate:
 ```rust
@@ -44,7 +44,7 @@ extern crate metro;
 use metropolis::*; 
 use metropolis::color::*; 
 //if you want some math functions use math as well
-use metro::math::*;
+use metropolis::math::*;
 ```
 
 Then you use the funcion size that creates a canvas(I wwould suggest to save height and width as variables so you can use them later
@@ -79,15 +79,23 @@ Finally use the show() function to run the whole thing:
 ```
 If you noticed - this program displays gravity working on an ellipse
 
+### release notes:
+#### this version has a few new things:
+1 - there is a mapping function called map
+2 - there is a factorial function called factorial
+3 - there is a function called linspace that create evenly spaced floats between two numbers
+4 - there are curves - using the catmull rom chain algorithm there is are functions to create a curves: curve, curveVertex, catmull_rom_chain 
+
 ### If you want to checkout the crate further that you should take a look in the [examples](https://github.com/GuyL99/metropolis/tree/master/examples) folder.
 ## Currently being developed:
-1)dynamic line width.
-2)up the circle and ellipse efficiency.
-3)add more drawing functions.
-4)add a text module.
-5)adding unit tests.
-6)3D.
-7)anithyng else from community feedback!
+1)dynamic line width.</br>
+2)up the curve, circle and ellipse efficiency.</br>
+3)vector operations(scalar mult, vec dot, vec to vec add...).</br>
+4)add more drawing functions.</br>
+5)add a text module.</br>
+6)adding unit tests.</br>
+7)3D.</br>
+8)anithyng else from community feedback!</br>
 
 # License 
 This crate is primarily distributed under the terms of the MIT license

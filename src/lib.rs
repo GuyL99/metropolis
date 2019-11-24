@@ -32,7 +32,7 @@
 //!   circle(400,posy,100);
 //!  };
 //!  //finally I send the draw function into show like that(should be used without the commenting,
-//! //it's commented because it loopes over with no timeout 
+//! //it's commented because it loopes over with no timeout
 //!   //show(draw);
 //!}
 //!```
@@ -43,7 +43,9 @@ mod setup;
 mod shaders;
 use mapping::*;
 mod canvas;
+mod compute;
 use canvas::*;
+use compute::*;
 ///a module used for coloring in this crate, will be adding more functions and easier set in the
 ///future.
 pub mod color;
@@ -490,4 +492,31 @@ pub fn arc(x: u16, y: u16, rad: u16, deg: u16) {
             }
         }
     }
+}
+///loopes over the array and uses curveVertex to create a catmull rom chain curve
+pub fn curve(ptvec:Vec<[i64;2]>){
+    for i in 0..(ptvec.len()-3){
+            curveVertex(ptvec[i][0],ptvec[i][1],ptvec[i+1][0],ptvec[i+1][1],ptvec[i+2][0],ptvec[i+2][1],ptvec[i+3][0],ptvec[i+3][1]);                        
+    }
+}
+///uses the catmull rom chain algorithm in order to create a curve
+#[allow(non_snake_case)]
+pub fn curveVertex(x1: i64, y1: i64, x2: i64, y2: i64, x3: i64, y3: i64, x4: i64, y4: i64) {
+    let c = catmull_rom_chain(x1,y1,x2,y2,x3,y3,x4,y4);
+    unsafe {
+        let scale = [CANVAS.size.0, CANVAS.size.1];
+        for pt in c.iter(){
+            add_to_stroke(Vertex {
+                position: mapf(*pt,scale),
+                color: CANVAS.color,
+            });
+        }
+    }
+}
+fn linspace_in(start: f64, finish: f64) -> [f64; 100] {
+    let mut arr1: [f64; 100] = [0.0; 100];
+    for i in 0..(99) {
+        arr1[i] = (((finish - start) / 100 as f64) * i as f64 + start);
+    }
+    arr1
 }
