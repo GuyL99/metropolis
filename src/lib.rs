@@ -52,6 +52,7 @@ pub mod color;
 ///a module to provide some mathematical help functions from the crate.
 ///Will be much expanded upon in the near future.
 pub mod math;
+use math::catmull_rom_chain;
 use color::*;
 fn add_to_fill(pusher: Vertex) {
     unsafe {
@@ -512,11 +513,4 @@ pub fn curveVertex(x1: i64, y1: i64, x2: i64, y2: i64, x3: i64, y3: i64, x4: i64
             });
         }
     }
-}
-fn linspace_in(start: f64, finish: f64) -> [f64; 100] {
-    let mut arr1: [f64; 100] = [0.0; 100];
-    for i in 0..(99) {
-        arr1[i] = (((finish - start) / 100 as f64) * i as f64 + start);
-    }
-    arr1
 }

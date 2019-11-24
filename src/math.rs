@@ -17,6 +17,7 @@ impl numerous for i64 {}*/
 /*pub fn sin<T>(x:T) -> f32
 where T:Add+Sub+Div+Mul+Sub<T,Output=f32>+Mul<f32, Output =f32>+Copy+Div<f32, Output =f32>+Copy+Add<f32, Output =f32>+Copy+Sub<f32, Output =f32>+Sub<u64, Output =f32>+Div<u64, Output =u64>+Copy+Clone+PartialEq+Ord{
 //where T:numerous+Add+Sub+Ord+Copy+Mul+Div{*/
+use crate::compute::*;
 ///converts degrees to radians
 ///#Examples
 ///```
@@ -344,4 +345,11 @@ pub fn catmull_rom_chain(x1: i64, y1: i64, x2: i64, y2: i64, x3: i64, y3: i64, x
         c[i]= [c1[0][i],c1[1][i]];
     }
     c
+}
+fn linspace_in(start: f64, finish: f64) -> [f64; 100] {
+    let mut arr1: [f64; 100] = [0.0; 100];
+    for i in 0..(99) {
+        arr1[i] = (((finish - start) / 100 as f64) * i as f64 + start);
+    }
+    arr1
 }
