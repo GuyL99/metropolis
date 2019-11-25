@@ -19,7 +19,7 @@ where T:Add+Sub+Div+Mul+Sub<T,Output=f32>+Mul<f32, Output =f32>+Copy+Div<f32, Ou
 //where T:numerous+Add+Sub+Ord+Copy+Mul+Div{*/
 use crate::compute::*;
 ///converts degrees to radians
-///#Examples
+///
 ///```
 ///use metropolis::math::*;
 ///assert_eq!(rad(90.0),PI/2.0);
@@ -28,7 +28,7 @@ pub fn rad(x: f32) -> f32 {
     (x / 180.0) * PI
 }
 ///converts radians to degrees
-///#Examples
+///
 ///```
 ///use metropolis::math::*;
 ///assert_eq!(deg(PI),180.0);
@@ -76,7 +76,7 @@ pub fn tan(x: f32) -> f32 {
     sin(x) / cos(x)
 }
 ///calculates the factorial of a number
-///#Examples
+///
 ///```
 ///use metropolis::math::*;
 ///assert_eq!(factorial(6),720);
@@ -92,7 +92,7 @@ fn real_factorial(n: u64, mut accume: u64) -> u64 {
     real_factorial(n - 1, accume)
 }
 ///converts from one float range to another
-///#Examples
+///
 ///```
 ///use metropolis::math::*;
 ///assert_eq!(map(1.0,0.0,2.0,0.0,1.0),0.5);
@@ -117,7 +117,16 @@ pub fn linspace(start: f64, finish: f64, n: u64) -> Vec<f64> {
 }
 ///takes 8 values(4 x's and 4 y's ad constructs a 100 points array of a catmull rom chain curve
 ///from them using he algorithm.
-pub fn catmull_rom_chain(x1: i64, y1: i64, x2: i64, y2: i64, x3: i64, y3: i64, x4: i64, y4: i64)->[[f64;2];100]{
+pub fn catmull_rom_chain(
+    x1: i64,
+    y1: i64,
+    x2: i64,
+    y2: i64,
+    x3: i64,
+    y3: i64,
+    x4: i64,
+    y4: i64,
+) -> [[f64; 2]; 100] {
     let t0 = 0f64;
     let t1 = (((x2 - x1).pow(2) + (y2 - y1).pow(2)) as f64).sqrt().sqrt() + t0 as f64;
     let t2 = (((x3 - x2).pow(2) + (y3 - y2).pow(2)) as f64).sqrt().sqrt() + t1 as f64;
@@ -303,7 +312,7 @@ pub fn catmull_rom_chain(x1: i64, y1: i64, x2: i64, y2: i64, x3: i64, y3: i64, x
         compute_ops2(b21[0], b22[0], ops::FloatAddVecs),
         compute_ops2(b21[1], b22[1], ops::FloatAddVecs),
     ];
-    
+
     let c11 = [
         compute_ops2(
             compute_ops(
@@ -340,9 +349,9 @@ pub fn catmull_rom_chain(x1: i64, y1: i64, x2: i64, y2: i64, x3: i64, y3: i64, x
         compute_ops2(c11[0], c12[0], ops::FloatAddVecs),
         compute_ops2(c11[1], c12[1], ops::FloatAddVecs),
     ];
-    let mut c:[[f64;2];100]= [[0f64;2];100];
-    for i in 0..99{
-        c[i]= [c1[0][i],c1[1][i]];
+    let mut c: [[f64; 2]; 100] = [[0f64; 2]; 100];
+    for i in 0..99 {
+        c[i] = [c1[0][i], c1[1][i]];
     }
     c
 }
@@ -352,4 +361,33 @@ fn linspace_in(start: f64, finish: f64) -> [f64; 100] {
         arr1[i] = (((finish - start) / 100 as f64) * i as f64 + start);
     }
     arr1
+}
+pub fn bezier_points(
+    x1: i64,
+    y1: i64,
+    x2: i64,
+    y2: i64,
+    x3: i64,
+    y3: i64,
+    x4: i64,
+    y4: i64,
+) -> [[f64; 2]; 101] {
+    let mut t = 0f64;
+    let mut b = [0f64, 0f64];
+    let mut arr_b = [[0f64; 2]; 101];
+    for i in 0..101 {
+        t = i as f64 / 100.0;
+        b = [
+            ((1.0 - t).powf(3.0) * x1 as f64)
+                + (3.0 * (1.0 - t).powf(2.0) * t) * x2 as f64
+                + (3.0 * (1.0 - t) * t.powf(2.0)) * x3 as f64
+                + (t.powf(3.0)) * x4 as f64,
+            ((1.0 - t).powf(3.0) * y1 as f64)
+                + (3.0 * (1.0 - t).powf(2.0) * t) * y2 as f64
+                + (3.0 * (1.0 - t) * t.powf(2.0)) * y3 as f64
+                + (t.powf(3.0)) * y4 as f64,
+        ];
+        arr_b[i] = b;
+    }
+    arr_b
 }

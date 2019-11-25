@@ -16,6 +16,7 @@ use vulkano::pipeline::ComputePipeline;
 use vulkano::sync;
 use vulkano::sync::GpuFuture;
 use vulkano_shaders::*;
+#[allow(non_camel_case_types)]
 pub enum ops {
     Sub,
     Add,
@@ -32,7 +33,7 @@ pub enum ops {
     FloatDivVecs,
     FloatMultVecs,
 }
-pub fn compute_ops<T: 'static>(arr1: [T; 100], scalar1: T, op:ops) -> [T; 100]
+pub fn compute_ops<T: 'static>(arr1: [T; 100], scalar1: T, op: ops) -> [T; 100]
 where
     T: Copy + Clone + Sync + Send,
 {
@@ -60,7 +61,7 @@ where
     };
     let queue = queues.next().unwrap();
     match op {
-       ops::Sub => {
+        ops::Sub => {
             let shader =
                 cs_sub::Shader::load(device.clone()).expect("failed to create shader module");
             let compute_pipeline = Arc::new(
@@ -99,7 +100,7 @@ where
             let arr2 = data_buffer.read().unwrap();
             return *arr2;
         }
-       ops::Add => {
+        ops::Add => {
             let shader =
                 cs_add::Shader::load(device.clone()).expect("failed to create shader module");
             let compute_pipeline = Arc::new(
@@ -138,7 +139,7 @@ where
             let arr2 = data_buffer.read().unwrap();
             return *arr2;
         }
-       ops::Div => {
+        ops::Div => {
             let shader =
                 cs_div::Shader::load(device.clone()).expect("failed to create shader module");
             let compute_pipeline = Arc::new(
@@ -177,7 +178,7 @@ where
             let arr2 = data_buffer.read().unwrap();
             return *arr2;
         }
-       ops::Mult => {
+        ops::Mult => {
             let shader =
                 cs_mult::Shader::load(device.clone()).expect("failed to create shader module");
             let compute_pipeline = Arc::new(
@@ -216,7 +217,7 @@ where
             let arr2 = data_buffer.read().unwrap();
             return *arr2;
         }
-       ops::FloatAdd => {
+        ops::FloatAdd => {
             let shader =
                 cs_float_add::Shader::load(device.clone()).expect("failed to create shader module");
             let compute_pipeline = Arc::new(
@@ -255,7 +256,7 @@ where
             let arr2 = data_buffer.read().unwrap();
             return *arr2;
         }
-       ops::FloatSub => {
+        ops::FloatSub => {
             let shader =
                 cs_float_sub::Shader::load(device.clone()).expect("failed to create shader module");
             let compute_pipeline = Arc::new(
@@ -294,7 +295,7 @@ where
             let arr2 = data_buffer.read().unwrap();
             return *arr2;
         }
-       ops::FloatDiv => {
+        ops::FloatDiv => {
             let shader =
                 cs_float_div::Shader::load(device.clone()).expect("failed to create shader module");
             let compute_pipeline = Arc::new(
@@ -333,7 +334,7 @@ where
             let arr2 = data_buffer.read().unwrap();
             return *arr2;
         }
-       ops::FloatMult => {
+        ops::FloatMult => {
             let shader = cs_float_mult::Shader::load(device.clone())
                 .expect("failed to create shader module");
             let compute_pipeline = Arc::new(
@@ -372,11 +373,12 @@ where
             let arr2 = data_buffer.read().unwrap();
             return *arr2;
         }
-        _ => {return arr1;
+        _ => {
+            return arr1;
         }
     }
 }
-pub fn compute_ops2<T: 'static>(arr1: [T; 100], arr2: [T; 100], op:ops) -> [T; 100]
+pub fn compute_ops2<T: 'static>(arr1: [T; 100], arr2: [T; 100], op: ops) -> [T; 100]
 where
     T: Copy + Clone + Sync + Send,
 {
@@ -403,7 +405,7 @@ where
     };
     let queue = queues.next().unwrap();
     match op {
-       ops::FloatSubVecs => {
+        ops::FloatSubVecs => {
             let shader = cs_float_sub_vec::Shader::load(device.clone())
                 .expect("failed to create shader module");
             let compute_pipeline = Arc::new(
@@ -442,7 +444,7 @@ where
             let arr3 = data_buffer.read().unwrap();
             return *arr3;
         }
-       ops::AddVecs => {
+        ops::AddVecs => {
             let shader =
                 cs_add_vec::Shader::load(device.clone()).expect("failed to create shader module");
             let compute_pipeline = Arc::new(
@@ -481,7 +483,7 @@ where
             let arr3 = data_buffer.read().unwrap();
             return *arr3;
         }
-       ops::SubVecs => {
+        ops::SubVecs => {
             let shader =
                 cs_sub_vec::Shader::load(device.clone()).expect("failed to create shader module");
             let compute_pipeline = Arc::new(
@@ -520,9 +522,9 @@ where
             let arr3 = data_buffer.read().unwrap();
             return *arr3;
         }
-       ops::FloatDivVecs => {
-            let shader =
-                cs_float_div_vec::Shader::load(device.clone()).expect("failed to create shader module");
+        ops::FloatDivVecs => {
+            let shader = cs_float_div_vec::Shader::load(device.clone())
+                .expect("failed to create shader module");
             let compute_pipeline = Arc::new(
                 ComputePipeline::new(device.clone(), &shader.main_entry_point(), &())
                     .expect("failed to create compute pipeline"),
@@ -559,9 +561,9 @@ where
             let arr3 = data_buffer.read().unwrap();
             return *arr3;
         }
-       ops::FloatMultVecs => {
-            let shader =
-                cs_float_mult_vec::Shader::load(device.clone()).expect("failed to create shader module");
+        ops::FloatMultVecs => {
+            let shader = cs_float_mult_vec::Shader::load(device.clone())
+                .expect("failed to create shader module");
             let compute_pipeline = Arc::new(
                 ComputePipeline::new(device.clone(), &shader.main_entry_point(), &())
                     .expect("failed to create compute pipeline"),
@@ -598,6 +600,8 @@ where
             let arr3 = data_buffer.read().unwrap();
             return *arr3;
         }
-        _=>{return arr1;},
+        _ => {
+            return arr1;
+        }
     }
 }

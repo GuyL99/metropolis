@@ -1,5 +1,5 @@
 # Metropolis
-![crates.io](https://img.shields.io/crates/v/metropolis.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![doc.rs](https://docs.rs/metropolis/badge.svg?version=0.3.0)
+![crates.io](https://img.shields.io/crates/v/metropolis.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![doc.rs](https://docs.rs/metropolis/badge.svg?version=0.3.1)
 ## What is it and what is it for?
 
 Metropolis is an easy to use high level graphics renderer written in rust, utilizing [vulkano](https://crates.io/crates/vulkano) and [winit](https://crates.io/crates/winit),
@@ -36,7 +36,7 @@ Later I hope to develop a game engine using it but first I'll finish the rendere
 Add the following to your Cargo.toml:
 ```rust
 [dependencies]
-metropolis = "0.3.0"
+metropolis = "0.3.1"
 ```
 First use import the crate:
 ```rust
@@ -80,7 +80,9 @@ Finally use the show() function to run the whole thing:
 If you noticed - this program displays gravity working on an ellipse
 
 ### release notes:
-#### this version has a few new things:
+#### this version has a new things:
+there is a bezier curve, 2 function - one for vertex(4 x's and y's) and one for a chain(should have amout of values of 4+3*i such as 4,7,10,13...)
+#### former version release notes:
 1 - there is a mapping function called map
 2 - there is a factorial function called factorial
 3 - there is a function called linspace that create evenly spaced floats between two numbers
@@ -88,14 +90,16 @@ If you noticed - this program displays gravity working on an ellipse
 
 ### If you want to checkout the crate further that you should take a look in the [examples](https://github.com/GuyL99/metropolis/tree/master/examples) folder.
 ## Currently being developed:
+####special - moving to vulkano 0.16
 1)dynamic line width.</br>
-2)up the curve, circle and ellipse efficiency.</br>
-3)vector operations(scalar mult, vec dot, vec to vec add...).</br>
-4)add more drawing functions.</br>
-5)add a text module.</br>
-6)adding unit tests.</br>
-7)3D.</br>
-8)anithyng else from community feedback!</br>
+2)add an image module</br>
+3)up the curve, circle and ellipse efficiency.</br>
+4)vector operations(scalar mult, vec dot, vec to vec add...).</br>
+5)add more drawing functions.</br>
+6)add a text module.</br>
+7)adding unit tests.</br>
+8)3D.</br>
+9)anithyng else from community feedback!</br>
 
 # License 
 This crate is primarily distributed under the terms of the MIT license

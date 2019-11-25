@@ -52,8 +52,8 @@ pub mod color;
 ///a module to provide some mathematical help functions from the crate.
 ///Will be much expanded upon in the near future.
 pub mod math;
-use math::catmull_rom_chain;
 use color::*;
+use math::{bezier_points, catmull_rom_chain};
 fn add_to_fill(pusher: Vertex) {
     unsafe {
         match &FILL_VERTECIES {
@@ -494,23 +494,70 @@ pub fn arc(x: u16, y: u16, rad: u16, deg: u16) {
         }
     }
 }
+///loopes over the array and uses curveVertex to create a bezier curve
+#[allow(non_snake_case)]
+pub fn bezierCurve(ptvec: Vec<[i64; 2]>) {
+    for i in 0..(ptvec.len() - 3) {
+        if (i + 1) % 4 == 0 || i == 0 {
+            bezierCurveVertex(
+                ptvec[i][0],
+                ptvec[i][1],
+                ptvec[i + 1][0],
+                ptvec[i + 1][1],
+                ptvec[i + 2][0],
+                ptvec[i + 2][1],
+                ptvec[i + 3][0],
+                ptvec[i + 3][1],
+            );
+        }
+    }
+}
 ///loopes over the array and uses curveVertex to create a catmull rom chain curve
-pub fn curve(ptvec:Vec<[i64;2]>){
-    for i in 0..(ptvec.len()-3){
-            curveVertex(ptvec[i][0],ptvec[i][1],ptvec[i+1][0],ptvec[i+1][1],ptvec[i+2][0],ptvec[i+2][1],ptvec[i+3][0],ptvec[i+3][1]);                        
+pub fn curve(ptvec: Vec<[i64; 2]>) {
+    for i in 0..(ptvec.len() - 3) {
+        curveVertex(
+            ptvec[i][0],
+            ptvec[i][1],
+            ptvec[i + 1][0],
+            ptvec[i + 1][1],
+            ptvec[i + 2][0],
+            ptvec[i + 2][1],
+            ptvec[i + 3][0],
+            ptvec[i + 3][1],
+        );
     }
 }
 ///uses the catmull rom chain algorithm in order to create a curve
 #[allow(non_snake_case)]
 pub fn curveVertex(x1: i64, y1: i64, x2: i64, y2: i64, x3: i64, y3: i64, x4: i64, y4: i64) {
-    let c = catmull_rom_chain(x1,y1,x2,y2,x3,y3,x4,y4);
+    let c = catmull_rom_chain(x1, y1, x2, y2, x3, y3, x4, y4);
     unsafe {
         let scale = [CANVAS.size.0, CANVAS.size.1];
-        for pt in c.iter(){
+        for pt in c.iter() {
             add_to_stroke(Vertex {
-                position: mapf(*pt,scale),
+                position: mapf(*pt, scale),
                 color: CANVAS.color,
             });
+        }
+    }
+}
+///uses the cubic bezier curve algorithm in order to create a curve
+#[allow(non_snake_case)]
+pub fn bezierCurveVertex(x1: i64, y1: i64, x2: i64, y2: i64, x3: i64, y3: i64, x4: i64, y4: i64) {
+    let c = bezier_points(x1, y1, x2, y2, x3, y3, x4, y4);
+    unsafe {
+        let scale = [CANVAS.size.0, CANVAS.size.1];
+        let mut ptnxt = c[0];
+        for pt in c.iter() {
+            add_to_stroke(Vertex {
+                position: mapf(ptnxt, scale),
+                color: CANVAS.color,
+            });
+            add_to_stroke(Vertex {
+                position: mapf(*pt, scale),
+                color: CANVAS.color,
+            });
+            ptnxt = *pt;
         }
     }
 }
