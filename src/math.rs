@@ -135,7 +135,7 @@ pub fn catmull_rom_chain(
     let a11 = [
         compute_ops(
             compute_ops(
-                (compute_ops(compute_ops(t, -1.0, ops::FloatMult), t1, ops::FloatAdd)),
+                compute_ops(compute_ops(t, -1.0, ops::FloatMult), t1, ops::FloatAdd),
                 t1 - t0,
                 ops::FloatDiv,
             ),
@@ -144,7 +144,7 @@ pub fn catmull_rom_chain(
         ),
         compute_ops(
             compute_ops(
-                (compute_ops(compute_ops(t, -1f64, ops::FloatMult), t1, ops::FloatAdd)),
+                compute_ops(compute_ops(t, -1f64, ops::FloatMult), t1, ops::FloatAdd),
                 t1 - t0,
                 ops::FloatDiv,
             ),
@@ -154,12 +154,12 @@ pub fn catmull_rom_chain(
     ];
     let a12 = [
         compute_ops(
-            compute_ops((compute_ops(t, t0, ops::FloatSub)), t1 - t0, ops::FloatDiv),
+            compute_ops(compute_ops(t, t0, ops::FloatSub), t1 - t0, ops::FloatDiv),
             x2 as f64,
             ops::FloatMult,
         ),
         compute_ops(
-            compute_ops((compute_ops(t, t0, ops::FloatAdd)), t1 - t0, ops::FloatDiv),
+            compute_ops(compute_ops(t, t0, ops::FloatAdd), t1 - t0, ops::FloatDiv),
             y2 as f64,
             ops::FloatMult,
         ),
@@ -171,7 +171,7 @@ pub fn catmull_rom_chain(
     let a21 = [
         compute_ops(
             compute_ops(
-                (compute_ops(compute_ops(t, -1.0, ops::FloatMult), t2, ops::FloatAdd)),
+                compute_ops(compute_ops(t, -1.0, ops::FloatMult), t2, ops::FloatAdd),
                 t2 - t1,
                 ops::FloatDiv,
             ),
@@ -180,7 +180,7 @@ pub fn catmull_rom_chain(
         ),
         compute_ops(
             compute_ops(
-                (compute_ops(compute_ops(t, -1f64, ops::FloatMult), t2, ops::FloatAdd)),
+                compute_ops(compute_ops(t, -1f64, ops::FloatMult), t2, ops::FloatAdd),
                 t2 - t1,
                 ops::FloatDiv,
             ),
@@ -190,12 +190,12 @@ pub fn catmull_rom_chain(
     ];
     let a22 = [
         compute_ops(
-            compute_ops((compute_ops(t, t1, ops::FloatSub)), t2 - t1, ops::FloatDiv),
+            compute_ops(compute_ops(t, t1, ops::FloatSub), t2 - t1, ops::FloatDiv),
             x3 as f64,
             ops::FloatMult,
         ),
         compute_ops(
-            compute_ops((compute_ops(t, t1, ops::FloatAdd)), t2 - t1, ops::FloatDiv),
+            compute_ops(compute_ops(t, t1, ops::FloatAdd), t2 - t1, ops::FloatDiv),
             y3 as f64,
             ops::FloatMult,
         ),
@@ -207,7 +207,7 @@ pub fn catmull_rom_chain(
     let a31 = [
         compute_ops(
             compute_ops(
-                (compute_ops(compute_ops(t, -1.0, ops::FloatMult), t3, ops::FloatAdd)),
+                compute_ops(compute_ops(t, -1.0, ops::FloatMult), t3, ops::FloatAdd),
                 t3 - t2,
                 ops::FloatDiv,
             ),
@@ -216,7 +216,7 @@ pub fn catmull_rom_chain(
         ),
         compute_ops(
             compute_ops(
-                (compute_ops(compute_ops(t, -1f64, ops::FloatMult), t3, ops::FloatAdd)),
+                compute_ops(compute_ops(t, -1f64, ops::FloatMult), t3, ops::FloatAdd),
                 t3 - t2,
                 ops::FloatDiv,
             ),
@@ -226,12 +226,12 @@ pub fn catmull_rom_chain(
     ];
     let a32 = [
         compute_ops(
-            compute_ops((compute_ops(t, t2, ops::FloatSub)), t3 - t2, ops::FloatDiv),
+            compute_ops(compute_ops(t, t2, ops::FloatSub), t3 - t2, ops::FloatDiv),
             x4 as f64,
             ops::FloatMult,
         ),
         compute_ops(
-            compute_ops((compute_ops(t, t2, ops::FloatAdd)), t3 - t2, ops::FloatDiv),
+            compute_ops(compute_ops(t, t2, ops::FloatAdd), t3 - t2, ops::FloatDiv),
             y4 as f64,
             ops::FloatMult,
         ),
@@ -243,7 +243,7 @@ pub fn catmull_rom_chain(
     let b11 = [
         compute_ops2(
             compute_ops(
-                (compute_ops(compute_ops(t, -1.0, ops::FloatMult), t2, ops::FloatAdd)),
+                compute_ops(compute_ops(t, -1.0, ops::FloatMult), t2, ops::FloatAdd),
                 t2 - t0,
                 ops::FloatDiv,
             ),
@@ -252,7 +252,7 @@ pub fn catmull_rom_chain(
         ),
         compute_ops2(
             compute_ops(
-                (compute_ops(compute_ops(t, -1f64, ops::FloatMult), t2, ops::FloatAdd)),
+                compute_ops(compute_ops(t, -1f64, ops::FloatMult), t2, ops::FloatAdd),
                 t2 - t0,
                 ops::FloatDiv,
             ),
@@ -262,12 +262,12 @@ pub fn catmull_rom_chain(
     ];
     let b12 = [
         compute_ops2(
-            compute_ops((compute_ops(t, t0, ops::FloatSub)), t2 - t0, ops::FloatDiv),
+            compute_ops(compute_ops(t, t0, ops::FloatSub), t2 - t0, ops::FloatDiv),
             a2[0],
             ops::FloatMultVecs,
         ),
         compute_ops2(
-            compute_ops((compute_ops(t, t2, ops::FloatAdd)), t2 - t0, ops::FloatDiv),
+            compute_ops(compute_ops(t, t2, ops::FloatAdd), t2 - t0, ops::FloatDiv),
             a2[1],
             ops::FloatMultVecs,
         ),
@@ -279,7 +279,7 @@ pub fn catmull_rom_chain(
     let b21 = [
         compute_ops2(
             compute_ops(
-                (compute_ops(compute_ops(t, -1.0, ops::FloatMult), t3, ops::FloatAdd)),
+                compute_ops(compute_ops(t, -1.0, ops::FloatMult), t3, ops::FloatAdd),
                 t3 - t1,
                 ops::FloatDiv,
             ),
@@ -288,7 +288,7 @@ pub fn catmull_rom_chain(
         ),
         compute_ops2(
             compute_ops(
-                (compute_ops(compute_ops(t, -1f64, ops::FloatMult), t3, ops::FloatAdd)),
+                compute_ops(compute_ops(t, -1f64, ops::FloatMult), t3, ops::FloatAdd),
                 t3 - t1,
                 ops::FloatDiv,
             ),
@@ -298,12 +298,12 @@ pub fn catmull_rom_chain(
     ];
     let b22 = [
         compute_ops2(
-            compute_ops((compute_ops(t, t1, ops::FloatSub)), t3 - t1, ops::FloatDiv),
+            compute_ops(compute_ops(t, t1, ops::FloatSub), t3 - t1, ops::FloatDiv),
             a3[0],
             ops::FloatMultVecs,
         ),
         compute_ops2(
-            compute_ops((compute_ops(t, t1, ops::FloatAdd)), t3 - t1, ops::FloatDiv),
+            compute_ops(compute_ops(t, t1, ops::FloatAdd), t3 - t1, ops::FloatDiv),
             a3[1],
             ops::FloatMultVecs,
         ),
@@ -316,7 +316,7 @@ pub fn catmull_rom_chain(
     let c11 = [
         compute_ops2(
             compute_ops(
-                (compute_ops(compute_ops(t, -1.0, ops::FloatMult), t2, ops::FloatAdd)),
+                compute_ops(compute_ops(t, -1.0, ops::FloatMult), t2, ops::FloatAdd),
                 t2 - t1,
                 ops::FloatDiv,
             ),
@@ -325,7 +325,7 @@ pub fn catmull_rom_chain(
         ),
         compute_ops2(
             compute_ops(
-                (compute_ops(compute_ops(t, -1f64, ops::FloatMult), t2, ops::FloatAdd)),
+                compute_ops(compute_ops(t, -1f64, ops::FloatMult), t2, ops::FloatAdd),
                 t2 - t1,
                 ops::FloatDiv,
             ),
@@ -335,12 +335,12 @@ pub fn catmull_rom_chain(
     ];
     let c12 = [
         compute_ops2(
-            compute_ops((compute_ops(t, t1, ops::FloatSub)), t2 - t1, ops::FloatDiv),
+            compute_ops(compute_ops(t, t1, ops::FloatSub), t2 - t1, ops::FloatDiv),
             b2[0],
             ops::FloatMultVecs,
         ),
         compute_ops2(
-            compute_ops((compute_ops(t, t1, ops::FloatAdd)), t2 - t1, ops::FloatDiv),
+            compute_ops(compute_ops(t, t1, ops::FloatAdd), t2 - t1, ops::FloatDiv),
             b2[1],
             ops::FloatMultVecs,
         ),
@@ -358,7 +358,7 @@ pub fn catmull_rom_chain(
 fn linspace_in(start: f64, finish: f64) -> [f64; 100] {
     let mut arr1: [f64; 100] = [0.0; 100];
     for i in 0..(99) {
-        arr1[i] = (((finish - start) / 100 as f64) * i as f64 + start);
+        arr1[i] = ((finish - start) / 100 as f64) * i as f64 + start;
     }
     arr1
 }
@@ -372,8 +372,8 @@ pub fn bezier_points(
     x4: i64,
     y4: i64,
 ) -> [[f64; 2]; 101] {
-    let mut t = 0f64;
-    let mut b = [0f64, 0f64];
+    let mut t:f64;
+    let mut b:[f64;2];
     let mut arr_b = [[0f64; 2]; 101];
     for i in 0..101 {
         t = i as f64 / 100.0;

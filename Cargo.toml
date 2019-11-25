@@ -1,6 +1,6 @@
 [package]
 name = "metropolis"
-version = "0.3.1"
+version = "0.3.2"
 authors = ["guy <guy123levinger@gmail.com>"]
 edition = "2018"
 description = "A high level easy to use graphics renderer"
@@ -9,17 +9,18 @@ readme = "README.md"
 categories = ["games","graphics","gui"]
 keywords = ["cli", "api","gui","gamedev","graphics"]
 license = "MIT"
-documentation = "https://docs.rs/metropolis/0.3.1/metropolis"
+documentation = "https://docs.rs/metropolis/0.3.2/metropolis"
 gitlab = { repository = "https://gitlab.com/GuyL99/graphics-renderer", branch = "master" }
 
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-vulkano = "0.14.0"
-vulkano-shaders = "0.14.0"
-vulkano-win = "0.15.0"
-winit = "0.20.0-alpha3"
+vulkano = "0.16.0"
+vulkano-shaders = "0.16.0"
+vulkano-win = "0.16.0"
+#winit = "0.20.0-alpha3"
+winit = "0.19.5"
 
 
 [profile.dev]

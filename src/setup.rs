@@ -15,8 +15,8 @@ use vulkano::sync;
 use vulkano::sync::GpuFuture;
 use vulkano_win::VkSurfaceBuild;
 use winit::dpi::LogicalSize;
-use winit::event_loop::EventLoop;
-use winit::window::{Window, WindowBuilder};
+use winit::EventsLoop;
+use winit::{Window, WindowBuilder};
 pub struct Preper {
     pub device: Arc<Device>,
     pub queue: Arc<Queue>,
@@ -31,7 +31,10 @@ pub struct Preper {
     pub recreate_swapchain: bool,
     pub previous_frame_end: Option<Box<dyn GpuFuture>>,
 }
-pub fn init(w: u16, h: u16) -> Preper {
+pub struct Eventer{
+    pub events_loop: EventsLoop,
+}
+pub fn init(w: u16, h: u16) -> (Preper,Eventer) {
     let instance = {
         let extensions = vulkano_win::required_extensions();
         Instance::new(None, &extensions, None).unwrap()
@@ -42,9 +45,9 @@ pub fn init(w: u16, h: u16) -> Preper {
         physical.name(),
         physical.ty()
     );
-    let events_loop = EventLoop::new();
+    let events_loop = EventsLoop::new();
     let surface = WindowBuilder::new()
-        .with_inner_size(LogicalSize {
+        .with_dimensions(LogicalSize {
             width: w as f64,
             height: h as f64,
         })
@@ -75,8 +78,9 @@ pub fn init(w: u16, h: u16) -> Preper {
         let initial_dimensions = {
             // convert to physical pixels
             let dimensions: (u32, u32) = window
-                .inner_size()
-                .to_physical(window.hidpi_factor())
+                .get_inner_size()
+                .unwrap()
+                .to_physical(window.get_hidpi_factor())
                 .into();
             [dimensions.0, dimensions.1]
         };
@@ -145,12 +149,13 @@ pub fn init(w: u16, h: u16) -> Preper {
         line_width: None,
         viewports: None,
         scissors: None,
+        compare_mask: None, write_mask: None, reference: None
     };
     let framebuffers =
         window_size_dependent_setup(&images, render_pass.clone(), &mut dynamic_state);
     let recreate_swapchain = false;
     let previous_frame_end = Some(Box::new(sync::now(device.clone())) as Box<dyn GpuFuture>);
-    Preper {
+    (Preper {
         device,
         queue,
         surface,
@@ -163,7 +168,9 @@ pub fn init(w: u16, h: u16) -> Preper {
         framebuffers,
         recreate_swapchain,
         previous_frame_end,
-    }
+    }, Eventer{
+        events_loop,
+    })
 }
 pub fn window_size_dependent_setup(
     images: &[Arc<SwapchainImage<Window>>],

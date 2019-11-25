@@ -1,5 +1,5 @@
 # Metropolis
-![crates.io](https://img.shields.io/crates/v/metropolis.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![doc.rs](https://docs.rs/metropolis/badge.svg?version=0.3.1)
+![crates.io](https://img.shields.io/crates/v/metropolis.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![doc.rs](https://docs.rs/metropolis/badge.svg?version=0.3.2)
 ## What is it and what is it for?
 
 Metropolis is an easy to use high level graphics renderer written in rust, utilizing [vulkano](https://crates.io/crates/vulkano) and [winit](https://crates.io/crates/winit),
@@ -36,7 +36,7 @@ Later I hope to develop a game engine using it but first I'll finish the rendere
 Add the following to your Cargo.toml:
 ```rust
 [dependencies]
-metropolis = "0.3.1"
+metropolis = "0.3.2"
 ```
 First use import the crate:
 ```rust
@@ -79,10 +79,13 @@ Finally use the show() function to run the whole thing:
 ```
 If you noticed - this program displays gravity working on an ellipse
 
-### release notes:
-#### this version has a new things:
+## release notes:
+### this version has a new things:
+ported to vulkano 0.16, fixed the problem with the unclosing window!
+### former versions release notes:
+#### 0.3.1:
 there is a bezier curve, 2 function - one for vertex(4 x's and y's) and one for a chain(should have amout of values of 4+3*i such as 4,7,10,13...)
-#### former version release notes:
+#### 0.3.0:
 1 - there is a mapping function called map
 2 - there is a factorial function called factorial
 3 - there is a function called linspace that create evenly spaced floats between two numbers
@@ -90,7 +93,6 @@ there is a bezier curve, 2 function - one for vertex(4 x's and y's) and one for 
 
 ### If you want to checkout the crate further that you should take a look in the [examples](https://github.com/GuyL99/metropolis/tree/master/examples) folder.
 ## Currently being developed:
-####special - moving to vulkano 0.16
 1)dynamic line width.</br>
 2)add an image module</br>
 3)up the curve, circle and ellipse efficiency.</br>

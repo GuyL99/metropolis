@@ -10,9 +10,8 @@ use vulkano::swapchain;
 use vulkano::swapchain::{AcquireError, SwapchainCreationError};
 use vulkano::sync;
 use vulkano::sync::{FlushError, GpuFuture};
-use winit::event::{Event, WindowEvent};
-use winit::event_loop::{ControlFlow, EventLoop};
-use winit::window::Window;
+use winit::{Event, WindowEvent};
+use winit::Window;
 #[derive(Copy, Clone, PartialEq)]
 pub struct Canvas {
     pub size: (u16, u16),
@@ -61,23 +60,19 @@ impl Canvas {
     where
         F: FnMut() + 'static,
     {
-        let mut env = init(self.size.0, self.size.1);
-        let events_loop = EventLoop::new();
-        events_loop.run(move |ev, _, cf| {
+        let (mut env, event_loop) = init(self.size.0, self.size.1);
+        let mut events_loop = event_loop.events_loop; 
             loop {
-                *cf = ControlFlow::Poll;
-                //let mut cf = &(ControlFlow::Poll);
-                //let event = winit::event::WindowEvent;
-                match ev {
-                    Event::WindowEvent {
-                        event: WindowEvent::CloseRequested,
-                        ..
-                    } => *cf = ControlFlow::Exit,
-                    Event::WindowEvent {
-                        event: WindowEvent::Resized(_),
-                        ..
-                    } => env.recreate_swapchain = true,
-                    _ => {}
+                let mut done = false;
+                events_loop.poll_events(|ev| {
+            match ev {
+                Event::WindowEvent { event: WindowEvent::CloseRequested, .. } => done = true,
+                Event::WindowEvent { event: WindowEvent::Resized(_), .. } => env.recreate_swapchain = true,
+                _ => ()
+            }
+        });
+                if done{
+                    return;
                 }
                 unsafe {
                     match &STROKE_VERTECIES {
@@ -111,15 +106,16 @@ impl Canvas {
                     if env.recreate_swapchain {
                         let dimensions = {
                             let dimensions: (u32, u32) = window
-                                .inner_size()
-                                .to_physical(window.hidpi_factor())
+                                .get_inner_size()
+                                .unwrap()
+                                .to_physical(window.get_hidpi_factor())
                                 .into();
                             [dimensions.0, dimensions.1]
                         };
                         let (new_swapchain, new_images) =
                             match env.swapchain.recreate_with_dimension(dimensions) {
                                 Ok(r) => r,
-                                Err(SwapchainCreationError::UnsupportedDimensions) => return,
+                                Err(SwapchainCreationError::UnsupportedDimensions) => continue,
                                 Err(err) => panic!("{:?}", err),
                             };
                         env.swapchain = new_swapchain;
@@ -135,7 +131,7 @@ impl Canvas {
                             Ok(r) => r,
                             Err(AcquireError::OutOfDate) => {
                                 env.recreate_swapchain = true;
-                                return;
+                                continue;
                             }
                             Err(err) => panic!("{:?}", err),
                         };
@@ -195,7 +191,7 @@ impl Canvas {
                 zero_out();
                 draw_fn();
             }
-        });
+        //});
     }
 }
 fn window_size_dependent_setup(

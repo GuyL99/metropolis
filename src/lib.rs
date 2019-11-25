@@ -45,7 +45,6 @@ use mapping::*;
 mod canvas;
 mod compute;
 use canvas::*;
-use compute::*;
 ///a module used for coloring in this crate, will be adding more functions and easier set in the
 ///future.
 pub mod color;

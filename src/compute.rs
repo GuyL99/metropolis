@@ -1,10 +1,8 @@
 use crate::shaders::*;
 use std::sync::Arc;
-use vulkano::buffer::immutable::ImmutableBuffer;
 use vulkano::buffer::BufferUsage;
 use vulkano::buffer::CpuAccessibleBuffer;
 use vulkano::command_buffer::AutoCommandBufferBuilder;
-use vulkano::command_buffer::CommandBuffer;
 use vulkano::descriptor::descriptor_set::PersistentDescriptorSet;
 use vulkano::device::Device;
 use vulkano::device::DeviceExtensions;
@@ -15,7 +13,6 @@ use vulkano::instance::PhysicalDevice;
 use vulkano::pipeline::ComputePipeline;
 use vulkano::sync;
 use vulkano::sync::GpuFuture;
-use vulkano_shaders::*;
 #[allow(non_camel_case_types)]
 pub enum ops {
     Sub,
@@ -48,8 +45,6 @@ where
         .queue_families()
         .find(|&q| q.supports_compute())
         .expect("couldn't find a compute queue family");
-    let mut a = 0;
-
     let (device, mut queues) = {
         Device::new(
             physical,
@@ -90,7 +85,7 @@ where
                     .unwrap()
                     .build()
                     .unwrap();
-            let future = sync::now(device.clone())
+            let _future = sync::now(device.clone())
                 .then_execute(queue.clone(), command_buffer)
                 .unwrap()
                 .then_signal_fence_and_flush()
@@ -129,7 +124,7 @@ where
                     .unwrap()
                     .build()
                     .unwrap();
-            let future = sync::now(device.clone())
+            let _future = sync::now(device.clone())
                 .then_execute(queue.clone(), command_buffer)
                 .unwrap()
                 .then_signal_fence_and_flush()
@@ -168,7 +163,7 @@ where
                     .unwrap()
                     .build()
                     .unwrap();
-            let future = sync::now(device.clone())
+            let _future = sync::now(device.clone())
                 .then_execute(queue.clone(), command_buffer)
                 .unwrap()
                 .then_signal_fence_and_flush()
@@ -207,7 +202,7 @@ where
                     .unwrap()
                     .build()
                     .unwrap();
-            let future = sync::now(device.clone())
+            let _future = sync::now(device.clone())
                 .then_execute(queue.clone(), command_buffer)
                 .unwrap()
                 .then_signal_fence_and_flush()
@@ -246,7 +241,7 @@ where
                     .unwrap()
                     .build()
                     .unwrap();
-            let future = sync::now(device.clone())
+            let _future = sync::now(device.clone())
                 .then_execute(queue.clone(), command_buffer)
                 .unwrap()
                 .then_signal_fence_and_flush()
@@ -285,7 +280,7 @@ where
                     .unwrap()
                     .build()
                     .unwrap();
-            let future = sync::now(device.clone())
+            let _future = sync::now(device.clone())
                 .then_execute(queue.clone(), command_buffer)
                 .unwrap()
                 .then_signal_fence_and_flush()
@@ -324,7 +319,7 @@ where
                     .unwrap()
                     .build()
                     .unwrap();
-            let future = sync::now(device.clone())
+            let _future = sync::now(device.clone())
                 .then_execute(queue.clone(), command_buffer)
                 .unwrap()
                 .then_signal_fence_and_flush()
@@ -363,7 +358,7 @@ where
                     .unwrap()
                     .build()
                     .unwrap();
-            let future = sync::now(device.clone())
+            let _future = sync::now(device.clone())
                 .then_execute(queue.clone(), command_buffer)
                 .unwrap()
                 .then_signal_fence_and_flush()
@@ -434,7 +429,7 @@ where
                     .unwrap()
                     .build()
                     .unwrap();
-            let future = sync::now(device.clone())
+            let _future = sync::now(device.clone())
                 .then_execute(queue.clone(), command_buffer)
                 .unwrap()
                 .then_signal_fence_and_flush()
@@ -473,7 +468,7 @@ where
                     .unwrap()
                     .build()
                     .unwrap();
-            let future = sync::now(device.clone())
+            let _future = sync::now(device.clone())
                 .then_execute(queue.clone(), command_buffer)
                 .unwrap()
                 .then_signal_fence_and_flush()
@@ -512,7 +507,7 @@ where
                     .unwrap()
                     .build()
                     .unwrap();
-            let future = sync::now(device.clone())
+            let _future = sync::now(device.clone())
                 .then_execute(queue.clone(), command_buffer)
                 .unwrap()
                 .then_signal_fence_and_flush()
@@ -551,7 +546,7 @@ where
                     .unwrap()
                     .build()
                     .unwrap();
-            let future = sync::now(device.clone())
+            let _future = sync::now(device.clone())
                 .then_execute(queue.clone(), command_buffer)
                 .unwrap()
                 .then_signal_fence_and_flush()
@@ -590,7 +585,7 @@ where
                     .unwrap()
                     .build()
                     .unwrap();
-            let future = sync::now(device.clone())
+            let _future = sync::now(device.clone())
                 .then_execute(queue.clone(), command_buffer)
                 .unwrap()
                 .then_signal_fence_and_flush()
