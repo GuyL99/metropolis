@@ -14,6 +14,7 @@ use vulkano::pipeline::ComputePipeline;
 use vulkano::sync;
 use vulkano::sync::GpuFuture;
 #[allow(non_camel_case_types)]
+#[allow(dead_code)]
 pub enum ops {
     Sub,
     Add,

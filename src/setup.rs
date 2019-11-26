@@ -31,20 +31,54 @@ pub struct Preper {
     pub recreate_swapchain: bool,
     pub previous_frame_end: Option<Box<dyn GpuFuture>>,
 }
-pub struct Eventer{
-    pub events_loop: EventsLoop,
+#[allow(unused_variables)]
+pub struct Preperer {
+    pub device: Arc<Device>,
+    pub queue: Arc<Queue>,
 }
-pub fn init(w: u16, h: u16) -> (Preper,Eventer) {
+#[allow(dead_code)]
+#[allow(unused_variables)]
+pub fn init_compute() -> Preperer {
+    let w = 0;
+    let h = 0;
     let instance = {
         let extensions = vulkano_win::required_extensions();
         Instance::new(None, &extensions, None).unwrap()
     };
     let physical = PhysicalDevice::enumerate(&instance).next().unwrap();
-    println!(
-        "Using device: {} (type: {:?})",
-        physical.name(),
-        physical.ty()
-    );
+    let events_loop = EventsLoop::new();
+    let surface = WindowBuilder::new()
+        .with_dimensions(LogicalSize {
+            width: w as f64,
+            height: h as f64,
+        })
+        .build_vk_surface(&events_loop, instance.clone())
+        .unwrap();
+    let window = surface.window();
+    let queue_family = physical
+        .queue_families()
+        .find(|&q| q.supports_graphics() && surface.is_supported(q).unwrap_or(false))
+        .unwrap();
+    let device_ext = DeviceExtensions {
+        khr_swapchain: true,
+        ..DeviceExtensions::none()
+    };
+    let (device, mut queues) = Device::new(
+        physical,
+        physical.supported_features(),
+        &device_ext,
+        [(queue_family, 0.5)].iter().cloned(),
+    )
+    .unwrap();
+    let queue = queues.next().unwrap();
+    Preperer { device, queue }
+}
+pub fn init(w: u16, h: u16) -> (Preper, EventsLoop) {
+    let instance = {
+        let extensions = vulkano_win::required_extensions();
+        Instance::new(None, &extensions, None).unwrap()
+    };
+    let physical = PhysicalDevice::enumerate(&instance).next().unwrap();
     let events_loop = EventsLoop::new();
     let surface = WindowBuilder::new()
         .with_dimensions(LogicalSize {
@@ -149,28 +183,31 @@ pub fn init(w: u16, h: u16) -> (Preper,Eventer) {
         line_width: None,
         viewports: None,
         scissors: None,
-        compare_mask: None, write_mask: None, reference: None
+        compare_mask: None,
+        write_mask: None,
+        reference: None,
     };
     let framebuffers =
         window_size_dependent_setup(&images, render_pass.clone(), &mut dynamic_state);
     let recreate_swapchain = false;
     let previous_frame_end = Some(Box::new(sync::now(device.clone())) as Box<dyn GpuFuture>);
-    (Preper {
-        device,
-        queue,
-        surface,
-        swapchain,
-        images,
-        render_pass,
-        fill_pipeline,
-        stroke_pipeline,
-        dynamic_state,
-        framebuffers,
-        recreate_swapchain,
-        previous_frame_end,
-    }, Eventer{
+    (
+        Preper {
+            device,
+            queue,
+            surface,
+            swapchain,
+            images,
+            render_pass,
+            fill_pipeline,
+            stroke_pipeline,
+            dynamic_state,
+            framebuffers,
+            recreate_swapchain,
+            previous_frame_end,
+        },
         events_loop,
-    })
+    )
 }
 pub fn window_size_dependent_setup(
     images: &[Arc<SwapchainImage<Window>>],

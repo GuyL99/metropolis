@@ -169,6 +169,74 @@ pub fn rect(x: u16, y: u16, width: u16, height: u16) {
         }
     }
 }
+///recieves the x and y of the top spot and then the width of the sqaure you want built.
+pub fn square(x: u16, y: u16, width: u16) {
+    unsafe {
+        let scale = [CANVAS.size.0, CANVAS.size.1];
+        let t_l = map([x, y], scale);
+        let b_r = map([x + width, y + width], scale);
+        let t_r = map([x + width, y], scale);
+        let b_l = map([x, y + width], scale);
+        if CANVAS.fill {
+            let color = CANVAS.fill_color;
+            add_to_fill(Vertex {
+                position: b_r,
+                color,
+            });
+            add_to_fill(Vertex {
+                position: t_r,
+                color,
+            });
+            add_to_fill(Vertex {
+                position: t_l,
+                color,
+            });
+            add_to_fill(Vertex {
+                position: t_l,
+                color,
+            });
+            add_to_fill(Vertex {
+                position: b_l,
+                color,
+            });
+            add_to_fill(Vertex {
+                position: b_r,
+                color,
+            });
+        }
+        if CANVAS.stroke {
+            let color = CANVAS.color;
+            add_to_stroke(Vertex {
+                position: t_l,
+                color,
+            });
+            add_to_stroke(Vertex {
+                position: t_r,
+                color,
+            });
+            add_to_stroke(Vertex {
+                position: t_r,
+                color,
+            });
+            add_to_stroke(Vertex {
+                position: b_r,
+                color,
+            });
+            add_to_stroke(Vertex {
+                position: b_l,
+                color,
+            });
+            add_to_stroke(Vertex {
+                position: b_l,
+                color,
+            });
+            add_to_stroke(Vertex {
+                position: t_l,
+                color,
+            });
+        }
+    }
+}
 ///recieves the x and y of the top point and then the x and the y of the bottom point and creates a
 ///line between them.
 pub fn line(x: u16, y: u16, x2: u16, y2: u16) {
@@ -188,12 +256,12 @@ pub fn line(x: u16, y: u16, x2: u16, y2: u16) {
     }
 }
 ///recieves the x and y of the 3 points of the triangle and creates it based on them
-pub fn triangle(_pt1: (u16, u16), _pt2: (u16, u16), _pt3: (u16, u16)) {
+pub fn triangle(x1: u16, y1: u16, x2: u16, y2: u16, x3: u16, y3: u16) {
     unsafe {
         let scale = [CANVAS.size.0, CANVAS.size.1];
-        let pt1 = map([_pt1.0, _pt1.1], scale);
-        let pt2 = map([_pt2.0, _pt2.1], scale);
-        let pt3 = map([_pt3.0, _pt3.1], scale);
+        let pt1 = map([x1, y1], scale);
+        let pt2 = map([x2, y2], scale);
+        let pt3 = map([x3, y3], scale);
         if CANVAS.fill {
             let color = CANVAS.fill_color;
             add_to_fill(Vertex {
@@ -229,6 +297,70 @@ pub fn triangle(_pt1: (u16, u16), _pt2: (u16, u16), _pt3: (u16, u16)) {
             });
             add_to_stroke(Vertex {
                 position: pt3,
+                color,
+            });
+            add_to_stroke(Vertex {
+                position: pt1,
+                color,
+            });
+        }
+    }
+}
+///recieves the x and y of the 4 points of the quad and creates it based on them
+pub fn quad(x1: u16, y1: u16, x2: u16, y2: u16, x3: u16, y3: u16, x4: u16, y4: u16) {
+    unsafe {
+        let scale = [CANVAS.size.0, CANVAS.size.1];
+        let pt1 = map([x1, y1], scale);
+        let pt2 = map([x2, y2], scale);
+        let pt3 = map([x3, y3], scale);
+        let pt4 = map([x4, y4], scale);
+        if CANVAS.fill {
+            let color = CANVAS.fill_color;
+            add_to_fill(Vertex {
+                position: pt1,
+                color,
+            });
+            add_to_fill(Vertex {
+                position: pt2,
+                color,
+            });
+            add_to_fill(Vertex {
+                position: pt3,
+                color,
+            });
+            add_to_fill(Vertex {
+                position: pt4,
+                color,
+            });
+        }
+        if CANVAS.stroke {
+            let color = CANVAS.color;
+            add_to_stroke(Vertex {
+                position: pt1,
+                color,
+            });
+            add_to_stroke(Vertex {
+                position: pt2,
+                color,
+            });
+            add_to_stroke(Vertex {
+                position: pt2,
+                color,
+            });
+            add_to_stroke(Vertex {
+                position: pt3,
+                color,
+            });
+            add_to_stroke(Vertex {
+                position: pt3,
+                color,
+            });
+            add_to_stroke(Vertex {
+                position: pt4,
+                color,
+            });
+            add_to_stroke(Vertex {
+                position: pt4,
                 color,
             });
             add_to_stroke(Vertex {

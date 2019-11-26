@@ -10,8 +10,8 @@ use vulkano::swapchain;
 use vulkano::swapchain::{AcquireError, SwapchainCreationError};
 use vulkano::sync;
 use vulkano::sync::{FlushError, GpuFuture};
-use winit::{Event, WindowEvent};
 use winit::Window;
+use winit::{Event, WindowEvent};
 #[derive(Copy, Clone, PartialEq)]
 pub struct Canvas {
     pub size: (u16, u16),
@@ -60,137 +60,140 @@ impl Canvas {
     where
         F: FnMut() + 'static,
     {
-        let (mut env, event_loop) = init(self.size.0, self.size.1);
-        let mut events_loop = event_loop.events_loop; 
-            loop {
-                let mut done = false;
-                events_loop.poll_events(|ev| {
-            match ev {
-                Event::WindowEvent { event: WindowEvent::CloseRequested, .. } => done = true,
-                Event::WindowEvent { event: WindowEvent::Resized(_), .. } => env.recreate_swapchain = true,
-                _ => ()
+        let (mut env, mut events_loop) = init(self.size.0, self.size.1);
+        loop {
+            let mut done = false;
+            events_loop.poll_events(|ev| match ev {
+                Event::WindowEvent {
+                    event: WindowEvent::CloseRequested,
+                    ..
+                } => done = true,
+                Event::WindowEvent {
+                    event: WindowEvent::Resized(_),
+                    ..
+                } => env.recreate_swapchain = true,
+                _ => (),
+            });
+            if done {
+                return;
             }
-        });
-                if done{
-                    return;
-                }
-                unsafe {
-                    match &STROKE_VERTECIES {
-                        Some(vec1) => STROKE_VERTECIES = Some(vec1.to_vec()),
-                        None => {
-                            let vec2 = vec![];
-                            STROKE_VERTECIES = Some(vec2);
-                        }
-                    };
-                    match &FILL_VERTECIES {
-                        Some(vec1) => FILL_VERTECIES = Some(vec1.to_vec()),
-                        None => {
-                            let vec2 = vec![];
-                            FILL_VERTECIES = Some(vec2);
-                        }
-                    };
-                    let stroke_vertex_buffer = CpuAccessibleBuffer::from_iter(
-                        env.device.clone(),
-                        BufferUsage::all(),
-                        STROKE_VERTECIES.clone().unwrap().iter().cloned(),
-                    )
-                    .unwrap();
-                    let fill_vertex_buffer = CpuAccessibleBuffer::from_iter(
-                        env.device.clone(),
-                        BufferUsage::all(),
-                        FILL_VERTECIES.clone().unwrap().iter().cloned(),
-                    )
-                    .unwrap();
-                    let window = env.surface.window();
-                    env.previous_frame_end.as_mut().unwrap().cleanup_finished();
-                    if env.recreate_swapchain {
-                        let dimensions = {
-                            let dimensions: (u32, u32) = window
-                                .get_inner_size()
-                                .unwrap()
-                                .to_physical(window.get_hidpi_factor())
-                                .into();
-                            [dimensions.0, dimensions.1]
-                        };
-                        let (new_swapchain, new_images) =
-                            match env.swapchain.recreate_with_dimension(dimensions) {
-                                Ok(r) => r,
-                                Err(SwapchainCreationError::UnsupportedDimensions) => continue,
-                                Err(err) => panic!("{:?}", err),
-                            };
-                        env.swapchain = new_swapchain;
-                        env.framebuffers = window_size_dependent_setup(
-                            &new_images,
-                            env.render_pass.clone(),
-                            &mut env.dynamic_state,
-                        );
-                        env.recreate_swapchain = false;
+            unsafe {
+                match &STROKE_VERTECIES {
+                    Some(vec1) => STROKE_VERTECIES = Some(vec1.to_vec()),
+                    None => {
+                        let vec2 = vec![];
+                        STROKE_VERTECIES = Some(vec2);
                     }
-                    let (image_num, acquire_future) =
-                        match swapchain::acquire_next_image(env.swapchain.clone(), None) {
+                };
+                match &FILL_VERTECIES {
+                    Some(vec1) => FILL_VERTECIES = Some(vec1.to_vec()),
+                    None => {
+                        let vec2 = vec![];
+                        FILL_VERTECIES = Some(vec2);
+                    }
+                };
+                let stroke_vertex_buffer = CpuAccessibleBuffer::from_iter(
+                    env.device.clone(),
+                    BufferUsage::all(),
+                    STROKE_VERTECIES.clone().unwrap().iter().cloned(),
+                )
+                .unwrap();
+                let fill_vertex_buffer = CpuAccessibleBuffer::from_iter(
+                    env.device.clone(),
+                    BufferUsage::all(),
+                    FILL_VERTECIES.clone().unwrap().iter().cloned(),
+                )
+                .unwrap();
+                let window = env.surface.window();
+                env.previous_frame_end.as_mut().unwrap().cleanup_finished();
+                if env.recreate_swapchain {
+                    let dimensions = {
+                        let dimensions: (u32, u32) = window
+                            .get_inner_size()
+                            .unwrap()
+                            .to_physical(window.get_hidpi_factor())
+                            .into();
+                        [dimensions.0, dimensions.1]
+                    };
+                    let (new_swapchain, new_images) =
+                        match env.swapchain.recreate_with_dimension(dimensions) {
                             Ok(r) => r,
-                            Err(AcquireError::OutOfDate) => {
-                                env.recreate_swapchain = true;
-                                continue;
-                            }
+                            Err(SwapchainCreationError::UnsupportedDimensions) => continue,
                             Err(err) => panic!("{:?}", err),
                         };
-                    let clear_values = vec![self.background_color.into()];
-                    let command_buffer = AutoCommandBufferBuilder::primary_one_time_submit(
-                        env.device.clone(),
-                        env.queue.family(),
-                    )
-                    .unwrap()
-                    .begin_render_pass(env.framebuffers[image_num].clone(), false, clear_values)
-                    .unwrap()
-                    .draw(
-                        env.fill_pipeline.clone(),
-                        &env.dynamic_state,
-                        vec![fill_vertex_buffer.clone()],
-                        (),
-                        (),
-                    )
-                    .unwrap()
-                    .draw(
-                        env.stroke_pipeline.clone(),
-                        &env.dynamic_state,
-                        vec![stroke_vertex_buffer.clone()],
-                        (),
-                        (),
-                    )
-                    .unwrap()
-                    .end_render_pass()
-                    .unwrap()
-                    .build()
-                    .unwrap();
-                    let prev = env.previous_frame_end.take();
-                    let future = prev
-                        .unwrap()
-                        .join(acquire_future)
-                        .then_execute(env.queue.clone(), command_buffer)
-                        .unwrap()
-                        .then_swapchain_present(env.queue.clone(), env.swapchain.clone(), image_num)
-                        .then_signal_fence_and_flush();
-                    match future {
-                        Ok(future) => {
-                            future.wait(None).unwrap();
-                            env.previous_frame_end = Some(Box::new(future) as Box<_>);
-                        }
-                        Err(FlushError::OutOfDate) => {
+                    env.swapchain = new_swapchain;
+                    env.framebuffers = window_size_dependent_setup(
+                        &new_images,
+                        env.render_pass.clone(),
+                        &mut env.dynamic_state,
+                    );
+                    env.recreate_swapchain = false;
+                }
+                let (image_num, acquire_future) =
+                    match swapchain::acquire_next_image(env.swapchain.clone(), None) {
+                        Ok(r) => r,
+                        Err(AcquireError::OutOfDate) => {
                             env.recreate_swapchain = true;
-                            env.previous_frame_end =
-                                Some(Box::new(sync::now(env.device.clone())) as Box<_>);
+                            continue;
                         }
-                        Err(e) => {
-                            println!("{:?}", e);
-                            env.previous_frame_end =
-                                Some(Box::new(sync::now(env.device.clone())) as Box<_>);
-                        }
+                        Err(err) => panic!("{:?}", err),
+                    };
+                let clear_values = vec![self.background_color.into()];
+                let command_buffer = AutoCommandBufferBuilder::primary_one_time_submit(
+                    env.device.clone(),
+                    env.queue.family(),
+                )
+                .unwrap()
+                .begin_render_pass(env.framebuffers[image_num].clone(), false, clear_values)
+                .unwrap()
+                .draw(
+                    env.fill_pipeline.clone(),
+                    &env.dynamic_state,
+                    vec![fill_vertex_buffer.clone()],
+                    (),
+                    (),
+                )
+                .unwrap()
+                .draw(
+                    env.stroke_pipeline.clone(),
+                    &env.dynamic_state,
+                    vec![stroke_vertex_buffer.clone()],
+                    (),
+                    (),
+                )
+                .unwrap()
+                .end_render_pass()
+                .unwrap()
+                .build()
+                .unwrap();
+                let prev = env.previous_frame_end.take();
+                let future = prev
+                    .unwrap()
+                    .join(acquire_future)
+                    .then_execute(env.queue.clone(), command_buffer)
+                    .unwrap()
+                    .then_swapchain_present(env.queue.clone(), env.swapchain.clone(), image_num)
+                    .then_signal_fence_and_flush();
+                match future {
+                    Ok(future) => {
+                        future.wait(None).unwrap();
+                        env.previous_frame_end = Some(Box::new(future) as Box<_>);
+                    }
+                    Err(FlushError::OutOfDate) => {
+                        env.recreate_swapchain = true;
+                        env.previous_frame_end =
+                            Some(Box::new(sync::now(env.device.clone())) as Box<_>);
+                    }
+                    Err(e) => {
+                        println!("{:?}", e);
+                        env.previous_frame_end =
+                            Some(Box::new(sync::now(env.device.clone())) as Box<_>);
                     }
                 }
-                zero_out();
-                draw_fn();
             }
+            zero_out();
+            draw_fn();
+        }
         //});
     }
 }

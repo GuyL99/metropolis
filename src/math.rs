@@ -18,6 +18,10 @@ impl numerous for i64 {}*/
 where T:Add+Sub+Div+Mul+Sub<T,Output=f32>+Mul<f32, Output =f32>+Copy+Div<f32, Output =f32>+Copy+Add<f32, Output =f32>+Copy+Sub<f32, Output =f32>+Sub<u64, Output =f32>+Div<u64, Output =u64>+Copy+Clone+PartialEq+Ord{
 //where T:numerous+Add+Sub+Ord+Copy+Mul+Div{*/
 use crate::compute::*;
+use std::ops::Add;
+use std::ops::Div;
+use std::ops::Mul;
+use std::ops::Sub;
 ///converts degrees to radians
 ///
 ///```
@@ -97,8 +101,11 @@ fn real_factorial(n: u64, mut accume: u64) -> u64 {
 ///use metropolis::math::*;
 ///assert_eq!(map(1.0,0.0,2.0,0.0,1.0),0.5);
 ///```
-pub fn map(x: f64, a1: f64, a2: f64, b1: f64, b2: f64) -> f64 {
-    (x - a1) / (a2 - a1) * (b2 - b1) + b1
+pub fn map<T>(x: T, a1: T, a2: T, b1: T, b2: T) -> f64
+where
+    T: Copy + Clone + Add + Sub + Div + Mul + Sub<T, Output = f64> + Add<f64, Output = f64>,
+{
+    b1 + ((x - a1) / (a2 - a1) * (b2 - b1))
 }
 #[allow(clippy::approx_constant)]
 pub const PI: f32 = 3.14159265359;
@@ -372,8 +379,8 @@ pub fn bezier_points(
     x4: i64,
     y4: i64,
 ) -> [[f64; 2]; 101] {
-    let mut t:f64;
-    let mut b:[f64;2];
+    let mut t: f64;
+    let mut b: [f64; 2];
     let mut arr_b = [[0f64; 2]; 101];
     for i in 0..101 {
         t = i as f64 / 100.0;
