@@ -37,7 +37,7 @@
 //!}
 //!```
 mod vertex;
-use vertex::Vertex;
+use vertex::*;
 mod mapping;
 mod setup;
 mod shaders;
@@ -53,6 +53,20 @@ pub mod color;
 pub mod math;
 use color::*;
 use math::{bezier_points, catmull_rom_chain};
+fn add_to_text(pusher: Stext) {
+    unsafe {
+        match &TEXT_VEC {
+            None => {
+                TEXT_VEC = Some(vec![pusher]);
+            }
+            Some(vec1) => {
+                let mut vec2 = vec1.clone();
+                vec2.push(pusher);
+                TEXT_VEC = Some(vec2);
+            }
+        };
+    }
+}
 fn add_to_fill(pusher: Vertex) {
     unsafe {
         match &FILL_VERTECIES {
@@ -85,6 +99,13 @@ fn add_to_stroke(pusher: Vertex) {
 pub fn size(width: u16, height: u16) {
     unsafe {
         CANVAS.size = (width, height);
+    }
+}
+///recieves f32 ext size and sets the canvases text_size to that size
+#[allow(non_snake_case)]
+pub fn textSize(sz:f32) {
+    unsafe {
+        CANVAS.text_size = sz;
     }
 }
 ///this is the function used to run the animation
@@ -690,5 +711,15 @@ pub fn bezierCurveVertex(x1: i64, y1: i64, x2: i64, y2: i64, x3: i64, y3: i64, x
             });
             ptnxt = *pt;
         }
+    }
+}
+///drawes a text of a certain color and locaion on the canvas
+pub fn text(x:u16,y:u16,text:&'static str){
+    unsafe{
+        add_to_text(Stext{
+            position: [x as f32,y as f32],
+            color: CANVAS.color,
+            text: text,
+        });
     }
 }

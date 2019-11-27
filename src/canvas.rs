@@ -12,6 +12,7 @@ use vulkano::sync;
 use vulkano::sync::{FlushError, GpuFuture};
 use winit::Window;
 use winit::{Event, WindowEvent};
+use vulkano_text::{DrawText, DrawTextTrait};
 #[derive(Copy, Clone, PartialEq)]
 pub struct Canvas {
     pub size: (u16, u16),
@@ -23,6 +24,7 @@ pub struct Canvas {
     pub background_color: [f32; 4],
     pub fps: u8,
     pub resizeable: bool,
+    pub text_size: f32,
 }
 pub fn zero_out() {
     unsafe {
@@ -52,15 +54,18 @@ pub static mut CANVAS: Canvas = Canvas {
     background_color: [1.0, 1.0, 1.0, 1.0],
     fps: 30,
     resizeable: false,
+    text_size: 12.0,
 };
 pub static mut FILL_VERTECIES: Option<Vec<Vertex>> = None;
 pub static mut STROKE_VERTECIES: Option<Vec<Vertex>> = None;
+pub static mut TEXT_VEC:Option<Vec<Stext>> = None;
 impl Canvas {
     pub fn show<F>(self, mut draw_fn: F)
     where
         F: FnMut() + 'static,
     {
         let (mut env, mut events_loop) = init(self.size.0, self.size.1);
+        let mut text = DrawText::new(env.device.clone(), env.queue.clone(), env.swapchain.clone(), &env.images);
         loop {
             let mut done = false;
             events_loop.poll_events(|ev| match ev {
@@ -78,6 +83,17 @@ impl Canvas {
                 return;
             }
             unsafe {
+                match &TEXT_VEC {
+                    Some(vec1) => {//TEXT_VEC = Some(vec1.to_vec()),
+                        for txt in vec1{
+                            text.queue_text(txt.position[0],txt.position[0], CANVAS.text_size, txt.color,txt.text);
+                        }
+                    },
+                    None => {
+                        let vec2 = vec![];
+                        TEXT_VEC = Some(vec2);
+                    }
+                };
                 match &STROKE_VERTECIES {
                     Some(vec1) => STROKE_VERTECIES = Some(vec1.to_vec()),
                     None => {
@@ -127,6 +143,7 @@ impl Canvas {
                         env.render_pass.clone(),
                         &mut env.dynamic_state,
                     );
+                    text = DrawText::new(env.device.clone(), env.queue.clone(), env.swapchain.clone(), &new_images);
                     env.recreate_swapchain = false;
                 }
                 let (image_num, acquire_future) =
@@ -164,6 +181,7 @@ impl Canvas {
                 .unwrap()
                 .end_render_pass()
                 .unwrap()
+                .draw_text(&mut text, image_num)
                 .build()
                 .unwrap();
                 let prev = env.previous_frame_end.take();

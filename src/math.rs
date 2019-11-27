@@ -95,7 +95,37 @@ fn real_factorial(n: u64, mut accume: u64) -> u64 {
     accume *= n;
     real_factorial(n - 1, accume)
 }
-///converts from one float range to another
+///returns the absolute value of the number i number
+///
+///```
+///use metropolis::math::*;
+///assert_eq!(abs(-1),1);
+///```
+pub fn abs<T>(x: T) -> T
+where
+    T: Copy + Clone + Add + Sub + Div + Mul+ Mul<i8, Output = T> + PartialOrd+PartialEq,
+{
+    if x<(x*-1){
+        return x*-1;
+    }
+    x
+}
+///returns the absolute value of the number f number
+///
+///```
+///use metropolis::math::*;
+///assert_eq!(absf(-1.5),1.5);
+///```
+pub fn absf<T>(x: T) -> T
+where
+    T: Copy + Clone + Add + Sub + Div + Mul+ Mul<f32, Output = T> + PartialOrd+PartialEq,
+{
+    if x<(x*-1.0){
+        return x*-1.0;
+    }
+    x
+}
+///converts from one range to another
 ///
 ///```
 ///use metropolis::math::*;
