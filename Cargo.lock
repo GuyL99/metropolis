@@ -363,10 +363,10 @@ dependencies = [
 name = "metropolis"
 version = "0.4.0"
 dependencies = [
+ "rusttype 0.7.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "vulkano 0.16.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "vulkano-shaders 0.16.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "vulkano-win 0.16.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "vulkano_text 0.16.0",
  "winit 0.19.5 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -700,15 +700,6 @@ dependencies = [
  "objc 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "vulkano 0.16.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "winit 0.19.5 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "vulkano_text"
-version = "0.16.0"
-dependencies = [
- "rusttype 0.7.9 (registry+https://github.com/rust-lang/crates.io-index)",
- "vulkano 0.16.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "vulkano-shaders 0.16.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]

@@ -43,6 +43,7 @@ mod setup;
 mod shaders;
 use mapping::*;
 mod canvas;
+mod text;
 mod compute;
 use canvas::*;
 ///a module used for coloring in this crate, will be adding more functions and easier set in the

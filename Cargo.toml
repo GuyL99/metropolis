@@ -20,12 +20,7 @@ vulkano = "0.16.0"
 vulkano-shaders = "0.16.0"
 vulkano-win = "0.16.0"
 winit = "0.19.5"
-
-[dependencies.vulkano_text]
-path = "vulkano-text"
-version = "0.16.0"
-
-
+rusttype = { version = "0.7", features = ["gpu_cache"] }
 
 
 [profile.dev]

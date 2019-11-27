@@ -12,7 +12,7 @@ use vulkano::sync;
 use vulkano::sync::{FlushError, GpuFuture};
 use winit::Window;
 use winit::{Event, WindowEvent};
-use vulkano_text::{DrawText, DrawTextTrait};
+use crate::text::{DrawText, DrawTextTrait};
 #[derive(Copy, Clone, PartialEq)]
 pub struct Canvas {
     pub size: (u16, u16),
