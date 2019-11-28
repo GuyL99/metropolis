@@ -9,4 +9,8 @@ pub struct Stext {
     pub position: [f32; 2],
     pub color: [f32; 4],
     pub text: &'static str,
+    //pub font:Fonts,
 }
+/*pub enum Fonts{
+    
+}*/

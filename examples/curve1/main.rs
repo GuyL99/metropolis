@@ -5,6 +5,7 @@ fn main() {
     let width = 800;
     size(width, height);
     background(grayscale(100));
+        strokeWeight(8);
     let draw = move || {
         let curve_vec: Vec<[i64; 2]> = vec![
             [0, 400],

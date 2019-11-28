@@ -1,5 +1,5 @@
 # Metropolis
-![crates.io](https://img.shields.io/crates/v/metropolis.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![doc.rs](https://docs.rs/metropolis/badge.svg?version=0.4.0)
+![crates.io](https://img.shields.io/crates/v/metropolis.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![doc.rs](https://docs.rs/metropolis/badge.svg?version=0.4.1)
 ## What is it and what is it for?
 
 Metropolis is an easy to use high level graphics renderer written in rust, utilizing [vulkano](https://crates.io/crates/vulkano) and [winit](https://crates.io/crates/winit),
@@ -36,7 +36,7 @@ Later I hope to develop a game engine using it but first I'll finish the rendere
 Add the following to your Cargo.toml:
 ```rust
 [dependencies]
-metropolis = "0.4.0"
+metropolis = "0.4.1"
 ```
 First use import the crate:
 ```rust
@@ -80,10 +80,14 @@ Finally use the show() function to run the whole thing:
 If you noticed - this program displays gravity working on an ellipse
 
 ## release notes:
-### this version has a new things:
+### this version is a patch on the last one:
+fixed the text module slowdown for the non-text using canvases
+added FPS unsafe static
+added WIDTH/HEIGHT unsafe statics
+### former versions release notes:
+#### 0.4.1
 1 - added a text module - uses text() and textSize()
 2 - added abs() and absf() functions to math
-### former versions release notes:
 #### 0.3.3
 1 - changed map to recieve generic variable
 2 - added quad and square functions

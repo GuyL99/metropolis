@@ -31,48 +31,6 @@ pub struct Preper {
     pub recreate_swapchain: bool,
     pub previous_frame_end: Option<Box<dyn GpuFuture>>,
 }
-#[allow(unused_variables)]
-pub struct Preperer {
-    pub device: Arc<Device>,
-    pub queue: Arc<Queue>,
-}
-#[allow(dead_code)]
-#[allow(unused_variables)]
-pub fn init_compute() -> Preperer {
-    let w = 0;
-    let h = 0;
-    let instance = {
-        let extensions = vulkano_win::required_extensions();
-        Instance::new(None, &extensions, None).unwrap()
-    };
-    let physical = PhysicalDevice::enumerate(&instance).next().unwrap();
-    let events_loop = EventsLoop::new();
-    let surface = WindowBuilder::new()
-        .with_dimensions(LogicalSize {
-            width: w as f64,
-            height: h as f64,
-        })
-        .build_vk_surface(&events_loop, instance.clone())
-        .unwrap();
-    let window = surface.window();
-    let queue_family = physical
-        .queue_families()
-        .find(|&q| q.supports_graphics() && surface.is_supported(q).unwrap_or(false))
-        .unwrap();
-    let device_ext = DeviceExtensions {
-        khr_swapchain: true,
-        ..DeviceExtensions::none()
-    };
-    let (device, mut queues) = Device::new(
-        physical,
-        physical.supported_features(),
-        &device_ext,
-        [(queue_family, 0.5)].iter().cloned(),
-    )
-    .unwrap();
-    let queue = queues.next().unwrap();
-    Preperer { device, queue }
-}
 pub fn init(w: u16, h: u16) -> (Preper, EventsLoop) {
     let instance = {
         let extensions = vulkano_win::required_extensions();
@@ -160,6 +118,7 @@ pub fn init(w: u16, h: u16) -> (Preper, EventsLoop) {
             .vertex_input_single_buffer::<Vertex>()
             .vertex_shader(vs.main_entry_point(), ())
             .triangle_list()
+            .line_width_dynamic()
             .viewports_dynamic_scissors_irrelevant(1)
             .fragment_shader(fs.main_entry_point(), ())
             .blend_alpha_blending()
@@ -172,7 +131,7 @@ pub fn init(w: u16, h: u16) -> (Preper, EventsLoop) {
             .vertex_input_single_buffer::<Vertex>()
             .vertex_shader(vs.main_entry_point(), ())
             .line_list()
-            //.line_width_dynamic()
+            .line_width_dynamic()
             .viewports_dynamic_scissors_irrelevant(1)
             .fragment_shader(fs.main_entry_point(), ())
             .render_pass(Subpass::from(render_pass.clone(), 0).unwrap())

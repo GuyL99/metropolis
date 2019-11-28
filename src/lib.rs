@@ -1,6 +1,5 @@
 //!this crate is a high level easy to use graphics renderer inspired by processing in java and p5 in
 //!javascript. Working with it utilizes high level function like arc,line,rect and such that are
-//!used to draw things directly on a fixed canvas(there will later be added a module that allows
 //!you to make sveral canvases and display them as you wish. 3D is also coming and is currently
 //!under development(for now it's just 2D functions).
 //!the way to use the library is to use the size function to create a canvas with a fixed
@@ -54,6 +53,9 @@ pub mod color;
 pub mod math;
 use color::*;
 use math::{bezier_points, catmull_rom_chain};
+pub static mut FPS:f32 = 0f32;
+pub static mut HEIGHT:u16 = 0u16;
+pub static mut WIDTH:u16 = 0u16;
 fn add_to_text(pusher: Stext) {
     unsafe {
         match &TEXT_VEC {
@@ -104,9 +106,9 @@ pub fn size(width: u16, height: u16) {
 }
 ///recieves f32 ext size and sets the canvases text_size to that size
 #[allow(non_snake_case)]
-pub fn textSize(sz:f32) {
+pub fn textSize(sz:u8) {
     unsafe {
-        CANVAS.text_size = sz;
+        CANVAS.text_size = sz as f32;
     }
 }
 ///this is the function used to run the animation
