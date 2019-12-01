@@ -21,6 +21,7 @@ vulkano-shaders = "0.16.0"
 vulkano-win = "0.16.0"
 winit = "0.19.5"
 rusttype = { version = "0.7", features = ["gpu_cache"] }
+lazy_static = "1.4.0"
 
 
 [profile.dev]

@@ -45,6 +45,7 @@ mod canvas;
 mod text;
 mod compute;
 use canvas::*;
+use crate::canvas::CANVAS;
 ///a module used for coloring in this crate, will be adding more functions and easier set in the
 ///future.
 pub mod color;
@@ -100,37 +101,42 @@ fn add_to_stroke(pusher: Vertex) {
 }
 ///creates the canvas with the width and height sent to this function
 pub fn size(width: u16, height: u16) {
-    unsafe {
-        CANVAS.size = (width, height);
-    }
+    /*unsafe {
+        CANVAS.lock().unwrap().size = (width, height);
+    }*/
+    CANVAS.lock().unwrap().size(width,height);
+}
+pub fn get_size()->(u16,u16){
+    CANVAS.lock().unwrap().get_size()
 }
 ///recieves f32 ext size and sets the canvases text_size to that size
 #[allow(non_snake_case)]
 pub fn textSize(sz:u8) {
-    unsafe {
-        CANVAS.text_size = sz as f32;
-    }
+    /*unsafe {
+        CANVAS.lock().unwrap().text_size = sz as f32;
+    }*/
+    CANVAS.lock().unwrap().textSize(sz);
 }
 ///this is the function used to run the animation
 pub fn show<F>(draw_fn: F)
 where
     F: FnMut() + 'static,
 {
-    unsafe {
-        CANVAS.show(draw_fn);
-    }
+        //let mut canv = CANVAS.lock().unwrap();
+        //canv.show(draw_fn);
+        show_f(draw_fn);
 }
 ///recieves the x and y of the top spot and then the width and height of the rectangle you want
 ///built.
 pub fn rect(x: u16, y: u16, width: u16, height: u16) {
     unsafe {
-        let scale = [CANVAS.size.0, CANVAS.size.1];
+        let scale = [CANVAS.lock().unwrap().size.0, CANVAS.lock().unwrap().size.1];
         let t_l = map([x, y], scale);
         let b_r = map([x + width, y + height], scale);
         let t_r = map([x + width, y], scale);
         let b_l = map([x, y + height], scale);
-        if CANVAS.fill {
-            let color = CANVAS.fill_color;
+        if CANVAS.lock().unwrap().fill {
+            let color = CANVAS.lock().unwrap().fill_color;
             add_to_fill(Vertex {
                 position: b_r,
                 color,
@@ -156,8 +162,8 @@ pub fn rect(x: u16, y: u16, width: u16, height: u16) {
                 color,
             });
         }
-        if CANVAS.stroke {
-            let color = CANVAS.color;
+        if CANVAS.lock().unwrap().stroke {
+            let color = CANVAS.lock().unwrap().color;
             add_to_stroke(Vertex {
                 position: t_l,
                 color,
@@ -196,13 +202,13 @@ pub fn rect(x: u16, y: u16, width: u16, height: u16) {
 ///recieves the x and y of the top spot and then the width of the sqaure you want built.
 pub fn square(x: u16, y: u16, width: u16) {
     unsafe {
-        let scale = [CANVAS.size.0, CANVAS.size.1];
+        let scale = [CANVAS.lock().unwrap().size.0, CANVAS.lock().unwrap().size.1];
         let t_l = map([x, y], scale);
         let b_r = map([x + width, y + width], scale);
         let t_r = map([x + width, y], scale);
         let b_l = map([x, y + width], scale);
-        if CANVAS.fill {
-            let color = CANVAS.fill_color;
+        if CANVAS.lock().unwrap().fill {
+            let color = CANVAS.lock().unwrap().fill_color;
             add_to_fill(Vertex {
                 position: b_r,
                 color,
@@ -228,8 +234,8 @@ pub fn square(x: u16, y: u16, width: u16) {
                 color,
             });
         }
-        if CANVAS.stroke {
-            let color = CANVAS.color;
+        if CANVAS.lock().unwrap().stroke {
+            let color = CANVAS.lock().unwrap().color;
             add_to_stroke(Vertex {
                 position: t_l,
                 color,
@@ -265,10 +271,10 @@ pub fn square(x: u16, y: u16, width: u16) {
 ///line between them.
 pub fn line(x: u16, y: u16, x2: u16, y2: u16) {
     unsafe {
-        let scale = [CANVAS.size.0, CANVAS.size.1];
+        let scale = [CANVAS.lock().unwrap().size.0, CANVAS.lock().unwrap().size.1];
         let srt = map([x, y], scale);
         let fin = map([x2, y2], scale);
-        let color = CANVAS.color;
+        let color = CANVAS.lock().unwrap().color;
         add_to_stroke(Vertex {
             position: srt,
             color,
@@ -282,12 +288,12 @@ pub fn line(x: u16, y: u16, x2: u16, y2: u16) {
 ///recieves the x and y of the 3 points of the triangle and creates it based on them
 pub fn triangle(x1: u16, y1: u16, x2: u16, y2: u16, x3: u16, y3: u16) {
     unsafe {
-        let scale = [CANVAS.size.0, CANVAS.size.1];
+        let scale = [CANVAS.lock().unwrap().size.0, CANVAS.lock().unwrap().size.1];
         let pt1 = map([x1, y1], scale);
         let pt2 = map([x2, y2], scale);
         let pt3 = map([x3, y3], scale);
-        if CANVAS.fill {
-            let color = CANVAS.fill_color;
+        if CANVAS.lock().unwrap().fill {
+            let color = CANVAS.lock().unwrap().fill_color;
             add_to_fill(Vertex {
                 position: pt1,
                 color,
@@ -301,8 +307,8 @@ pub fn triangle(x1: u16, y1: u16, x2: u16, y2: u16, x3: u16, y3: u16) {
                 color,
             });
         }
-        if CANVAS.stroke {
-            let color = CANVAS.color;
+        if CANVAS.lock().unwrap().stroke {
+            let color = CANVAS.lock().unwrap().color;
             add_to_stroke(Vertex {
                 position: pt1,
                 color,
@@ -333,13 +339,13 @@ pub fn triangle(x1: u16, y1: u16, x2: u16, y2: u16, x3: u16, y3: u16) {
 ///recieves the x and y of the 4 points of the quad and creates it based on them
 pub fn quad(x1: u16, y1: u16, x2: u16, y2: u16, x3: u16, y3: u16, x4: u16, y4: u16) {
     unsafe {
-        let scale = [CANVAS.size.0, CANVAS.size.1];
+        let scale = [CANVAS.lock().unwrap().size.0, CANVAS.lock().unwrap().size.1];
         let pt1 = map([x1, y1], scale);
         let pt2 = map([x2, y2], scale);
         let pt3 = map([x3, y3], scale);
         let pt4 = map([x4, y4], scale);
-        if CANVAS.fill {
-            let color = CANVAS.fill_color;
+        if CANVAS.lock().unwrap().fill {
+            let color = CANVAS.lock().unwrap().fill_color;
             add_to_fill(Vertex {
                 position: pt1,
                 color,
@@ -357,8 +363,8 @@ pub fn quad(x1: u16, y1: u16, x2: u16, y2: u16, x3: u16, y3: u16, x4: u16, y4: u
                 color,
             });
         }
-        if CANVAS.stroke {
-            let color = CANVAS.color;
+        if CANVAS.lock().unwrap().stroke {
+            let color = CANVAS.lock().unwrap().color;
             add_to_stroke(Vertex {
                 position: pt1,
                 color,
@@ -396,10 +402,12 @@ pub fn quad(x1: u16, y1: u16, x2: u16, y2: u16, x3: u16, y3: u16, x4: u16, y4: u
 }
 ///recieves the x and the y of the center of the ellipse and the width and height of the ellipse
 ///and creates it accordingly
-pub fn ellipse(x: u16, y: u16, a: u16, b: u16) {
+pub fn ellipse(x: u16, y: u16, a: u16, b: u16){
     unsafe {
-        let scale = [CANVAS.size.0, CANVAS.size.1];
-        if CANVAS.stroke && !(CANVAS.fill && CANVAS.color == CANVAS.fill_color) {
+        let canv = CANVAS.lock().unwrap();
+        let scale = [canv.size.0, canv.size.1];
+        if canv.get_stroke() && !(canv.get_fill() && canv.color == canv.fill_color) {
+            println!("in a.ere");
             let mut pt_x = x as f32 + a as f32;
             let mut pt_y = y as f32;
             for an in (0..360).step_by(6) {
@@ -407,27 +415,27 @@ pub fn ellipse(x: u16, y: u16, a: u16, b: u16) {
                 let pty = y as f32 + ((an as f32 / 360.0) * 6.28).sin() * b as f32;
                 add_to_stroke(Vertex {
                     position: map_circ([pt_x, pt_y], scale),
-                    color: CANVAS.color,
+                    color: canv.color,
                 });
                 add_to_stroke(Vertex {
                     position: map_circ([ptx, pty], scale),
-                    color: CANVAS.color,
+                    color: canv.color,
                 });
                 pt_x = ptx;
                 pt_y = pty;
             }
             add_to_stroke(Vertex {
                 position: map_circ([pt_x, pt_y], scale),
-                color: CANVAS.color,
+                color: canv.color,
             });
             pt_x = x as f32 + a as f32 + 0.5;
             pt_y = y as f32 + 0.5;
             add_to_stroke(Vertex {
                 position: map_circ([pt_x, pt_y], scale),
-                color: CANVAS.color,
+                color: canv.color,
             });
         }
-        if CANVAS.fill {
+        if canv.get_fill(){
             let mut pt_x = x as f32 + a as f32;
             let mut pt_y = y as f32;
             for an in (0..360).step_by(6) {
@@ -435,41 +443,42 @@ pub fn ellipse(x: u16, y: u16, a: u16, b: u16) {
                 let pty = y as f32 + ((an as f32 / 360.0) * 6.28).sin() * b as f32;
                 add_to_fill(Vertex {
                     position: map_circ([pt_x, pt_y], scale),
-                    color: CANVAS.fill_color,
+                    color: canv.fill_color,
                 });
                 add_to_fill(Vertex {
                     position: map_circ([ptx, pty], scale),
-                    color: CANVAS.fill_color,
+                    color: canv.fill_color,
                 });
                 add_to_fill(Vertex {
                     position: map_circ([x as f32, y as f32], scale),
-                    color: CANVAS.fill_color,
+                    color: canv.fill_color,
                 });
                 pt_x = ptx;
                 pt_y = pty;
             }
             add_to_fill(Vertex {
                 position: map_circ([pt_x, pt_y], scale),
-                color: CANVAS.fill_color,
+                color: canv.fill_color,
             });
             pt_x = x as f32 + a as f32 + 0.5;
             pt_y = y as f32 + 0.5;
             add_to_fill(Vertex {
                 position: map_circ([pt_x, pt_y], scale),
-                color: CANVAS.fill_color,
+                color: canv.fill_color,
             });
             add_to_fill(Vertex {
                 position: map_circ([x as f32, y as f32], scale),
-                color: CANVAS.fill_color,
+                color: canv.fill_color,
             });
         }
+        drop(canv);
     }
 }
 ///recieves the x and y of the center of the circle and the radius and builds it with them.
 pub fn circle(x: u16, y: u16, rad: u16) {
     unsafe {
-        let scale = [CANVAS.size.0, CANVAS.size.1];
-        if CANVAS.stroke && !(CANVAS.fill && CANVAS.color == CANVAS.fill_color) {
+        let scale = [CANVAS.lock().unwrap().size.0, CANVAS.lock().unwrap().size.1];
+        if CANVAS.lock().unwrap().stroke && !(CANVAS.lock().unwrap().fill && CANVAS.lock().unwrap().color == CANVAS.lock().unwrap().fill_color) {
             let mut pt_x = x as f32 + rad as f32;
             let mut pt_y = y as f32;
             for a in (0..360).step_by(6) {
@@ -477,27 +486,27 @@ pub fn circle(x: u16, y: u16, rad: u16) {
                 let pty = y as f32 + ((a as f32 / 360.0) * 6.28).sin() * rad as f32;
                 add_to_stroke(Vertex {
                     position: map_circ([pt_x, pt_y], scale),
-                    color: CANVAS.color,
+                    color: CANVAS.lock().unwrap().color,
                 });
                 add_to_stroke(Vertex {
                     position: map_circ([ptx, pty], scale),
-                    color: CANVAS.color,
+                    color: CANVAS.lock().unwrap().color,
                 });
                 pt_x = ptx;
                 pt_y = pty;
             }
             add_to_stroke(Vertex {
                 position: map_circ([pt_x, pt_y], scale),
-                color: CANVAS.color,
+                color: CANVAS.lock().unwrap().color,
             });
             pt_x = x as f32 + rad as f32 + 0.5;
             pt_y = y as f32 + 0.5;
             add_to_stroke(Vertex {
                 position: map_circ([pt_x, pt_y], scale),
-                color: CANVAS.color,
+                color: CANVAS.lock().unwrap().color,
             });
         }
-        if CANVAS.fill {
+        if CANVAS.lock().unwrap().fill {
             let mut pt_x = x as f32 + rad as f32;
             let mut pt_y = y as f32;
             for a in (0..360).step_by(6) {
@@ -505,109 +514,123 @@ pub fn circle(x: u16, y: u16, rad: u16) {
                 let pty = y as f32 + ((a as f32 / 360.0) * 6.28).sin() * rad as f32;
                 add_to_fill(Vertex {
                     position: map_circ([pt_x, pt_y], scale),
-                    color: CANVAS.fill_color,
+                    color: CANVAS.lock().unwrap().fill_color,
                 });
                 add_to_fill(Vertex {
                     position: map_circ([ptx, pty], scale),
-                    color: CANVAS.fill_color,
+                    color: CANVAS.lock().unwrap().fill_color,
                 });
                 add_to_fill(Vertex {
                     position: map_circ([x as f32, y as f32], scale),
-                    color: CANVAS.fill_color,
+                    color: CANVAS.lock().unwrap().fill_color,
                 });
                 pt_x = ptx;
                 pt_y = pty;
             }
             add_to_fill(Vertex {
                 position: map_circ([pt_x, pt_y], scale),
-                color: CANVAS.fill_color,
+                color: CANVAS.lock().unwrap().fill_color,
             });
             pt_x = x as f32 + rad as f32 + 0.5;
             pt_y = y as f32 + 0.5;
             add_to_fill(Vertex {
                 position: map_circ([pt_x, pt_y], scale),
-                color: CANVAS.fill_color,
+                color: CANVAS.lock().unwrap().fill_color,
             });
             add_to_fill(Vertex {
                 position: map_circ([x as f32, y as f32], scale),
-                color: CANVAS.fill_color,
+                color: CANVAS.lock().unwrap().fill_color,
             });
         }
     }
 }
 ///recieves the x and the y and makes a small circle in the spot(size depends on strokeWeight).
 pub fn point(x: u16, y: u16) {
-    unsafe {
-        let stro = CANVAS.stroke;
-        let fil = CANVAS.fill;
-        CANVAS.stroke = false;
-        CANVAS.fill = true;
-        circle(x, y, CANVAS.stroke_weight as u16);
-        CANVAS.stroke = stro;
-        CANVAS.fill = fil;
-    }
+    /*unsafe {
+        let stro = CANVAS.lock().unwrap().stroke;
+        let fil = CANVAS.lock().unwrap().fill;
+        CANVAS.lock().unwrap().stroke = false;
+        CANVAS.lock().unwrap().fill = true;
+        circle(x, y, CANVAS.lock().unwrap().stroke_weight as u16);
+        CANVAS.lock().unwrap().stroke = stro;
+        CANVAS.lock().unwrap().fill = fil;
+    }*/
+    let stro = CANVAS.lock().unwrap().get_stroke();
+    let fil = CANVAS.lock().unwrap().get_fill();
+    CANVAS.lock().unwrap().noStroke();
+    CANVAS.lock().unwrap().set_fill(fil);
+    circle(x,y,CANVAS.lock().unwrap().stroke_weight as u16);
+    CANVAS.lock().unwrap().set_stroke(stro);
+    CANVAS.lock().unwrap().set_fill(fil);
 }
 ///enables fill and receives the color of the fill(the struct color) and sets the fill color to be
 ///the color.
-pub fn fill(color: Color) {
-    let r = color.get_r();
+pub fn fill(color: Color){
+    /*let r = color.get_r();
     let g = color.get_g();
     let b = color.get_b();
     let a = color.get_a();
     unsafe {
-        CANVAS.fill = true;
-        CANVAS.fill_color = mapping::map_colors([r, g, b, a]);
-    }
+        CANVAS.lock().unwrap().fill = true;
+        CANVAS.lock().unwrap().fill_color = mapping::map_colors([r, g, b, a]);
+    }*/
+    println!("check");
+    CANVAS.lock().unwrap().fill(color);
 }
 ///enables stroke and receives the color of the stroke(the struct color) and sets the stroke color to be
 ///the color.
 pub fn stroke(color: Color) {
-    let r = color.get_r();
+    /*let r = color.get_r();
     let g = color.get_g();
     let b = color.get_b();
     let a = color.get_a();
     unsafe {
-        CANVAS.stroke = true;
-        CANVAS.color = mapping::map_colors([r, g, b, a]);
-    }
+        CANVAS.lock().unwrap().stroke = true;
+        CANVAS.lock().unwrap().color = mapping::map_colors([r, g, b, a]);
+    }*/
+    CANVAS.lock().unwrap().stroke(color);
 }
 ///sets the background color(using the color struct).
 pub fn background(color: Color) {
-    let r = color.get_r();
+    /*let r = color.get_r();
     let g = color.get_g();
     let b = color.get_b();
     let a = color.get_a();
     unsafe {
-        CANVAS.background_color = mapping::map_colors([r, g, b, a]);
-    }
+        CANVAS.lock().unwrap().background_color = mapping::map_colors([r, g, b, a]);
+    }*/
+    CANVAS.lock().unwrap().background(color);
+
 }
 ///sets the stroke weight(the width of lines and points
 #[allow(non_snake_case)]
 pub fn strokeWeight(weight: u8) {
-    unsafe {
-        CANVAS.stroke_weight = weight;
-    }
+    /*unsafe {
+        CANVAS.lock().unwrap().stroke_weight = weight;
+    }*/
+    CANVAS.lock().unwrap().strokeWeight(weight);
 }
 ///disables fill on the canvas.
 #[allow(non_snake_case)]
 pub fn noFill() {
-    unsafe {
-        CANVAS.fill = false;
-    }
+    /*unsafe {
+        CANVAS.lock().unwrap().fill = false;
+    }*/
+    CANVAS.lock().unwrap().noFill();
 }
 ///disables stroke on the canvas.
 #[allow(non_snake_case)]
 pub fn noStroke() {
     unsafe {
-        CANVAS.stroke = false;
+        CANVAS.lock().unwrap().noStroke();
     }
 }
 ///create an arc from a circle, recieves the center of the circle and the radius and the degrees
 ///covered by the arc (360 degree arc is a full circle).
 pub fn arc(x: u16, y: u16, rad: u16, deg: u16) {
     unsafe {
-        let scale = [CANVAS.size.0, CANVAS.size.1];
-        if CANVAS.stroke && !(CANVAS.fill && CANVAS.color == CANVAS.fill_color) {
+        let scale = [CANVAS.lock().unwrap().size.0, CANVAS.lock().unwrap().size.1];
+        if CANVAS.lock().unwrap().stroke && !(CANVAS.lock().unwrap().fill && CANVAS.lock().unwrap().color == CANVAS.lock().unwrap().fill_color) {
             let mut pt_x = x as f32 + rad as f32;
             let mut pt_y = y as f32;
             for a in (0..deg + 6).step_by(6) {
@@ -615,17 +638,17 @@ pub fn arc(x: u16, y: u16, rad: u16, deg: u16) {
                 let pty = y as f32 + ((a as f32 / 360.0) * 6.28).sin() * rad as f32;
                 add_to_stroke(Vertex {
                     position: map_circ([pt_x, pt_y], scale),
-                    color: CANVAS.color,
+                    color: CANVAS.lock().unwrap().color,
                 });
                 add_to_stroke(Vertex {
                     position: map_circ([ptx, pty], scale),
-                    color: CANVAS.color,
+                    color: CANVAS.lock().unwrap().color,
                 });
                 pt_x = ptx;
                 pt_y = pty;
             }
         }
-        if CANVAS.fill {
+        if CANVAS.lock().unwrap().fill {
             let mut pt_x = x as f32 + rad as f32;
             let mut pt_y = y as f32;
             for a in (0..deg + 6).step_by(6) {
@@ -633,15 +656,15 @@ pub fn arc(x: u16, y: u16, rad: u16, deg: u16) {
                 let pty = y as f32 + ((a as f32 / 360.0) * 6.28).sin() * rad as f32;
                 add_to_fill(Vertex {
                     position: map_circ([pt_x, pt_y], scale),
-                    color: CANVAS.fill_color,
+                    color: CANVAS.lock().unwrap().fill_color,
                 });
                 add_to_fill(Vertex {
                     position: map_circ([ptx, pty], scale),
-                    color: CANVAS.fill_color,
+                    color: CANVAS.lock().unwrap().fill_color,
                 });
                 add_to_fill(Vertex {
                     position: map_circ([x as f32, y as f32], scale),
-                    color: CANVAS.fill_color,
+                    color: CANVAS.lock().unwrap().fill_color,
                 });
                 pt_x = ptx;
                 pt_y = pty;
@@ -687,11 +710,11 @@ pub fn curve(ptvec: Vec<[i64; 2]>) {
 pub fn curveVertex(x1: i64, y1: i64, x2: i64, y2: i64, x3: i64, y3: i64, x4: i64, y4: i64) {
     let c = catmull_rom_chain(x1, y1, x2, y2, x3, y3, x4, y4);
     unsafe {
-        let scale = [CANVAS.size.0, CANVAS.size.1];
+        let scale = [CANVAS.lock().unwrap().size.0, CANVAS.lock().unwrap().size.1];
         for pt in c.iter() {
             add_to_stroke(Vertex {
                 position: mapf(*pt, scale),
-                color: CANVAS.color,
+                color: CANVAS.lock().unwrap().color,
             });
         }
     }
@@ -701,16 +724,16 @@ pub fn curveVertex(x1: i64, y1: i64, x2: i64, y2: i64, x3: i64, y3: i64, x4: i64
 pub fn bezierCurveVertex(x1: i64, y1: i64, x2: i64, y2: i64, x3: i64, y3: i64, x4: i64, y4: i64) {
     let c = bezier_points(x1, y1, x2, y2, x3, y3, x4, y4);
     unsafe {
-        let scale = [CANVAS.size.0, CANVAS.size.1];
+        let scale = [CANVAS.lock().unwrap().size.0, CANVAS.lock().unwrap().size.1];
         let mut ptnxt = c[0];
         for pt in c.iter() {
             add_to_stroke(Vertex {
                 position: mapf(ptnxt, scale),
-                color: CANVAS.color,
+                color: CANVAS.lock().unwrap().color,
             });
             add_to_stroke(Vertex {
                 position: mapf(*pt, scale),
-                color: CANVAS.color,
+                color: CANVAS.lock().unwrap().color,
             });
             ptnxt = *pt;
         }
@@ -721,7 +744,7 @@ pub fn text(x:u16,y:u16,text:&'static str){
     unsafe{
         add_to_text(Stext{
             position: [x as f32,y as f32],
-            color: CANVAS.color,
+            color: CANVAS.lock().unwrap().color,
             text: text,
         });
     }

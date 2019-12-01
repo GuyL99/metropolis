@@ -31,7 +31,7 @@ pub struct Preper {
     pub recreate_swapchain: bool,
     pub previous_frame_end: Option<Box<dyn GpuFuture>>,
 }
-pub fn init(w: u16, h: u16) -> (Preper, EventsLoop) {
+pub fn init(size:(u16,u16)) -> (Preper, EventsLoop) {
     let instance = {
         let extensions = vulkano_win::required_extensions();
         Instance::new(None, &extensions, None).unwrap()
@@ -40,8 +40,8 @@ pub fn init(w: u16, h: u16) -> (Preper, EventsLoop) {
     let events_loop = EventsLoop::new();
     let surface = WindowBuilder::new()
         .with_dimensions(LogicalSize {
-            width: w as f64,
-            height: h as f64,
+            width: size.0 as f64,
+            height: size.1 as f64,
         })
         .build_vk_surface(&events_loop, instance.clone())
         .unwrap();

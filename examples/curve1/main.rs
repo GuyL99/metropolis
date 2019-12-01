@@ -18,6 +18,9 @@ fn main() {
         ];
         //let curve_vec:Vec<[i64;2]> = vec![[400,0],[370,4],[300,50],[257,75],[80,240],[150,150]];
         bezierCurve(curve_vec);
+        unsafe{
+            println!("FPS is: {}",FPS);
+        }
     };
     show(draw);
 }
