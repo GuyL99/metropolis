@@ -12,7 +12,7 @@ fn main() {
         if posy + 50 < height {
             posy += spd;
         }
-       // fill(rgb(255, 0, 100));
+        fill(rgb(255, 0, 100));
         //fill(0,0,00);
         //circle(400,posy,50);
         ellipse(400, posy, 200, 100);
