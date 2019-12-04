@@ -106,16 +106,16 @@ there is a bezier curve, 2 function - one for vertex(4 x's and y's) and one for 
 
 ### If you want to checkout the crate further that you should take a look in the [examples](https://github.com/GuyL99/metropolis/tree/master/examples) folder.
 ## Currently being developed:
-1)adding a struct impl based module(next version)
-2)making the static mut into a lazy_static(in development)
-2)dynamic line width.</br>
-3)improve image module</br>
-4)up the curve, circle and ellipse efficiency.</br>
-5)vector operations(scalar mult, vec dot, vec to vec add...).</br>
-6)add more drawing functions.</br>
-7)adding unit tests.</br>
-8)3D.</br>
-9)anithyng else from community feedback!</br>
+1)adding a struct impl based module(next version).</br>
+2)making the static mut into a lazy_static(in development).</br>
+3)dynamic line width.</br>
+4)improve image module</br>
+5)up the curve, circle and ellipse efficiency.</br>
+6)vector operations(scalar mult, vec dot, vec to vec add...).</br>
+7)add more drawing functions.</br>
+8)adding unit tests.</br>
+9)3D.</br>
+10)anithyng else from community feedback!</br>
 
 # License 
 This crate is primarily distributed under the terms of the MIT license
