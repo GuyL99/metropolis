@@ -40,6 +40,7 @@ pub fn rad(x: f32) -> f32 {
 pub fn deg(x: f32) -> f32 {
     x * 180.0 / PI
 }
+/*
 ///uses Taylor's series to determine sinus at the x, for now accepts f32, in the future also u/i
 pub fn sin(x: f32) -> f32 {
     #[allow(illegal_floating_point_literal_pattern)]
@@ -78,7 +79,7 @@ pub fn cos(x: f32) -> f32 {
 ///uses sin(x)/cos(x) in order to calculate tan(x)
 pub fn tan(x: f32) -> f32 {
     sin(x) / cos(x)
-}
+}*/
 ///calculates the factorial of a number
 ///
 ///```
@@ -95,7 +96,7 @@ fn real_factorial(n: u64, mut accume: u64) -> u64 {
     accume *= n;
     real_factorial(n - 1, accume)
 }
-///returns the absolute value of the number i number
+/*///returns the absolute value of the number i number
 ///
 ///```
 ///use metropolis::math::*;
@@ -124,7 +125,7 @@ where
         return x*-1.0;
     }
     x
-}
+}*/
 ///converts from one range to another
 ///
 ///```

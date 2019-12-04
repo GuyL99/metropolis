@@ -56,6 +56,9 @@ use math::{bezier_points, catmull_rom_chain};
 pub static mut FPS:f32 = 0f32;
 pub static mut HEIGHT:u16 = 0u16;
 pub static mut WIDTH:u16 = 0u16;
+use vulkano::image::Dimensions;
+use png;
+use std::fs::File;
 fn add_to_text(pusher: Stext) {
     unsafe {
         match &TEXT_VEC {
@@ -134,26 +137,32 @@ pub fn rect(x: u16, y: u16, width: u16, height: u16) {
             add_to_fill(Vertex {
                 position: b_r,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_fill(Vertex {
                 position: t_r,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_fill(Vertex {
                 position: t_l,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_fill(Vertex {
                 position: t_l,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_fill(Vertex {
                 position: b_l,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_fill(Vertex {
                 position: b_r,
                 color,
+                tex_coords:[0f32,0f32],
             });
         }
         if CANVAS.stroke {
@@ -161,34 +170,42 @@ pub fn rect(x: u16, y: u16, width: u16, height: u16) {
             add_to_stroke(Vertex {
                 position: t_l,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_stroke(Vertex {
                 position: t_r,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_stroke(Vertex {
                 position: t_r,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_stroke(Vertex {
                 position: b_r,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_stroke(Vertex {
                 position: b_r,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_stroke(Vertex {
                 position: b_l,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_stroke(Vertex {
                 position: b_l,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_stroke(Vertex {
                 position: t_l,
                 color,
+                tex_coords:[0f32,0f32],
             });
         }
     }
@@ -206,26 +223,32 @@ pub fn square(x: u16, y: u16, width: u16) {
             add_to_fill(Vertex {
                 position: b_r,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_fill(Vertex {
                 position: t_r,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_fill(Vertex {
                 position: t_l,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_fill(Vertex {
                 position: t_l,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_fill(Vertex {
                 position: b_l,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_fill(Vertex {
                 position: b_r,
                 color,
+                tex_coords:[0f32,0f32],
             });
         }
         if CANVAS.stroke {
@@ -233,30 +256,37 @@ pub fn square(x: u16, y: u16, width: u16) {
             add_to_stroke(Vertex {
                 position: t_l,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_stroke(Vertex {
                 position: t_r,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_stroke(Vertex {
                 position: t_r,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_stroke(Vertex {
                 position: b_r,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_stroke(Vertex {
                 position: b_l,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_stroke(Vertex {
                 position: b_l,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_stroke(Vertex {
                 position: t_l,
                 color,
+                tex_coords:[0f32,0f32],
             });
         }
     }
@@ -272,10 +302,12 @@ pub fn line(x: u16, y: u16, x2: u16, y2: u16) {
         add_to_stroke(Vertex {
             position: srt,
             color,
+                tex_coords:[0f32,0f32],
         });
         add_to_stroke(Vertex {
             position: fin,
             color,
+                tex_coords:[0f32,0f32],
         });
     }
 }
@@ -291,14 +323,17 @@ pub fn triangle(x1: u16, y1: u16, x2: u16, y2: u16, x3: u16, y3: u16) {
             add_to_fill(Vertex {
                 position: pt1,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_fill(Vertex {
                 position: pt2,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_fill(Vertex {
                 position: pt3,
                 color,
+                tex_coords:[0f32,0f32],
             });
         }
         if CANVAS.stroke {
@@ -306,26 +341,32 @@ pub fn triangle(x1: u16, y1: u16, x2: u16, y2: u16, x3: u16, y3: u16) {
             add_to_stroke(Vertex {
                 position: pt1,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_stroke(Vertex {
                 position: pt2,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_stroke(Vertex {
                 position: pt2,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_stroke(Vertex {
                 position: pt3,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_stroke(Vertex {
                 position: pt3,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_stroke(Vertex {
                 position: pt1,
                 color,
+                tex_coords:[0f32,0f32],
             });
         }
     }
@@ -343,18 +384,22 @@ pub fn quad(x1: u16, y1: u16, x2: u16, y2: u16, x3: u16, y3: u16, x4: u16, y4: u
             add_to_fill(Vertex {
                 position: pt1,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_fill(Vertex {
                 position: pt2,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_fill(Vertex {
                 position: pt3,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_fill(Vertex {
                 position: pt4,
                 color,
+                tex_coords:[0f32,0f32],
             });
         }
         if CANVAS.stroke {
@@ -362,34 +407,42 @@ pub fn quad(x1: u16, y1: u16, x2: u16, y2: u16, x3: u16, y3: u16, x4: u16, y4: u
             add_to_stroke(Vertex {
                 position: pt1,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_stroke(Vertex {
                 position: pt2,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_stroke(Vertex {
                 position: pt2,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_stroke(Vertex {
                 position: pt3,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_stroke(Vertex {
                 position: pt3,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_stroke(Vertex {
                 position: pt4,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_stroke(Vertex {
                 position: pt4,
                 color,
+                tex_coords:[0f32,0f32],
             });
             add_to_stroke(Vertex {
                 position: pt1,
                 color,
+                tex_coords:[0f32,0f32],
             });
         }
     }
@@ -408,10 +461,12 @@ pub fn ellipse(x: u16, y: u16, a: u16, b: u16) {
                 add_to_stroke(Vertex {
                     position: map_circ([pt_x, pt_y], scale),
                     color: CANVAS.color,
+                tex_coords:[0f32,0f32],
                 });
                 add_to_stroke(Vertex {
                     position: map_circ([ptx, pty], scale),
                     color: CANVAS.color,
+                tex_coords:[0f32,0f32],
                 });
                 pt_x = ptx;
                 pt_y = pty;
@@ -419,12 +474,14 @@ pub fn ellipse(x: u16, y: u16, a: u16, b: u16) {
             add_to_stroke(Vertex {
                 position: map_circ([pt_x, pt_y], scale),
                 color: CANVAS.color,
+                tex_coords:[0f32,0f32],
             });
             pt_x = x as f32 + a as f32 + 0.5;
             pt_y = y as f32 + 0.5;
             add_to_stroke(Vertex {
                 position: map_circ([pt_x, pt_y], scale),
                 color: CANVAS.color,
+                tex_coords:[0f32,0f32],
             });
         }
         if CANVAS.fill {
@@ -436,14 +493,17 @@ pub fn ellipse(x: u16, y: u16, a: u16, b: u16) {
                 add_to_fill(Vertex {
                     position: map_circ([pt_x, pt_y], scale),
                     color: CANVAS.fill_color,
+                tex_coords:[0f32,0f32],
                 });
                 add_to_fill(Vertex {
                     position: map_circ([ptx, pty], scale),
                     color: CANVAS.fill_color,
+                tex_coords:[0f32,0f32],
                 });
                 add_to_fill(Vertex {
                     position: map_circ([x as f32, y as f32], scale),
                     color: CANVAS.fill_color,
+                tex_coords:[0f32,0f32],
                 });
                 pt_x = ptx;
                 pt_y = pty;
@@ -451,16 +511,19 @@ pub fn ellipse(x: u16, y: u16, a: u16, b: u16) {
             add_to_fill(Vertex {
                 position: map_circ([pt_x, pt_y], scale),
                 color: CANVAS.fill_color,
+                tex_coords:[0f32,0f32],
             });
             pt_x = x as f32 + a as f32 + 0.5;
             pt_y = y as f32 + 0.5;
             add_to_fill(Vertex {
                 position: map_circ([pt_x, pt_y], scale),
                 color: CANVAS.fill_color,
+                tex_coords:[0f32,0f32],
             });
             add_to_fill(Vertex {
                 position: map_circ([x as f32, y as f32], scale),
                 color: CANVAS.fill_color,
+                tex_coords:[0f32,0f32],
             });
         }
     }
@@ -478,10 +541,12 @@ pub fn circle(x: u16, y: u16, rad: u16) {
                 add_to_stroke(Vertex {
                     position: map_circ([pt_x, pt_y], scale),
                     color: CANVAS.color,
+                    tex_coords:[0f32,0f32],
                 });
                 add_to_stroke(Vertex {
                     position: map_circ([ptx, pty], scale),
                     color: CANVAS.color,
+                    tex_coords:[0f32,0f32],
                 });
                 pt_x = ptx;
                 pt_y = pty;
@@ -489,12 +554,14 @@ pub fn circle(x: u16, y: u16, rad: u16) {
             add_to_stroke(Vertex {
                 position: map_circ([pt_x, pt_y], scale),
                 color: CANVAS.color,
+                tex_coords:[0f32,0f32],
             });
             pt_x = x as f32 + rad as f32 + 0.5;
             pt_y = y as f32 + 0.5;
             add_to_stroke(Vertex {
                 position: map_circ([pt_x, pt_y], scale),
                 color: CANVAS.color,
+                tex_coords:[0f32,0f32],
             });
         }
         if CANVAS.fill {
@@ -506,14 +573,17 @@ pub fn circle(x: u16, y: u16, rad: u16) {
                 add_to_fill(Vertex {
                     position: map_circ([pt_x, pt_y], scale),
                     color: CANVAS.fill_color,
+                    tex_coords:[0f32,0f32],
                 });
                 add_to_fill(Vertex {
                     position: map_circ([ptx, pty], scale),
                     color: CANVAS.fill_color,
+                    tex_coords:[0f32,0f32],
                 });
                 add_to_fill(Vertex {
                     position: map_circ([x as f32, y as f32], scale),
                     color: CANVAS.fill_color,
+                    tex_coords:[0f32,0f32],
                 });
                 pt_x = ptx;
                 pt_y = pty;
@@ -521,16 +591,19 @@ pub fn circle(x: u16, y: u16, rad: u16) {
             add_to_fill(Vertex {
                 position: map_circ([pt_x, pt_y], scale),
                 color: CANVAS.fill_color,
+                tex_coords:[0f32,0f32],
             });
             pt_x = x as f32 + rad as f32 + 0.5;
             pt_y = y as f32 + 0.5;
             add_to_fill(Vertex {
                 position: map_circ([pt_x, pt_y], scale),
                 color: CANVAS.fill_color,
+                tex_coords:[0f32,0f32],
             });
             add_to_fill(Vertex {
                 position: map_circ([x as f32, y as f32], scale),
                 color: CANVAS.fill_color,
+                tex_coords:[0f32,0f32],
             });
         }
     }
@@ -616,10 +689,12 @@ pub fn arc(x: u16, y: u16, rad: u16, deg: u16) {
                 add_to_stroke(Vertex {
                     position: map_circ([pt_x, pt_y], scale),
                     color: CANVAS.color,
+                    tex_coords:[0f32,0f32],
                 });
                 add_to_stroke(Vertex {
                     position: map_circ([ptx, pty], scale),
                     color: CANVAS.color,
+                    tex_coords:[0f32,0f32],
                 });
                 pt_x = ptx;
                 pt_y = pty;
@@ -634,14 +709,17 @@ pub fn arc(x: u16, y: u16, rad: u16, deg: u16) {
                 add_to_fill(Vertex {
                     position: map_circ([pt_x, pt_y], scale),
                     color: CANVAS.fill_color,
+                    tex_coords:[0f32,0f32],
                 });
                 add_to_fill(Vertex {
                     position: map_circ([ptx, pty], scale),
                     color: CANVAS.fill_color,
+                    tex_coords:[0f32,0f32],
                 });
                 add_to_fill(Vertex {
                     position: map_circ([x as f32, y as f32], scale),
                     color: CANVAS.fill_color,
+                    tex_coords:[0f32,0f32],
                 });
                 pt_x = ptx;
                 pt_y = pty;
@@ -692,6 +770,7 @@ pub fn curveVertex(x1: i64, y1: i64, x2: i64, y2: i64, x3: i64, y3: i64, x4: i64
             add_to_stroke(Vertex {
                 position: mapf(*pt, scale),
                 color: CANVAS.color,
+                tex_coords:[0f32,0f32],
             });
         }
     }
@@ -707,10 +786,12 @@ pub fn bezierCurveVertex(x1: i64, y1: i64, x2: i64, y2: i64, x3: i64, y3: i64, x
             add_to_stroke(Vertex {
                 position: mapf(ptnxt, scale),
                 color: CANVAS.color,
+                tex_coords:[0f32,0f32],
             });
             add_to_stroke(Vertex {
                 position: mapf(*pt, scale),
                 color: CANVAS.color,
+                tex_coords:[0f32,0f32],
             });
             ptnxt = *pt;
         }
@@ -725,4 +806,63 @@ pub fn text(x:u16,y:u16,text:&'static str){
             text: text,
         });
     }
+}
+///This struct is meant for loading and saving the image once and not every frame, it improves
+///framerate in aout 12 fps.
+#[derive(Clone)]
+pub struct Image{
+    pub image_data:Vec<u8>,
+    pub dimensions:Dimensions,
+}
+///takes a path to the image and loads it into an Image struct
+///should strictly be used outside the draw loop! 
+#[allow(non_snake_case)]
+pub fn img(path:&str)->Image{
+        let decoder = png::Decoder::new(File::open(path).unwrap());
+        let (info, mut reader) = decoder.read_info().unwrap();
+        let dimensions = Dimensions::Dim2d { width: info.width, height: info.height };
+        let mut image_data = Vec::new();
+        image_data.resize((info.width * info.height * 4) as usize, 0);
+        reader.next_frame(&mut image_data).unwrap();
+        Image{image_data,dimensions}
+}
+impl Image{
+    ///this function shoould be used inside the draw loop, because it does not load an image, it
+    ///simply displays a loaded image
+pub fn display(self,x:u16,y:u16,width:u16,height:u16){
+    unsafe {
+        let scale = [CANVAS.size.0, CANVAS.size.1];
+        add_to_fill(Vertex {
+            position: map([x,y], scale),
+            color: CANVAS.color,
+            tex_coords: map([x,y], scale),
+        });
+        add_to_fill(Vertex {
+            position: map([x+width,y], scale),
+            color: CANVAS.color,
+            tex_coords: map([x+width,y], scale),
+        });
+        add_to_fill(Vertex {
+            position: map([x+width,y+height], scale),
+            color: CANVAS.color,
+            tex_coords: map([x+width,y+height], scale),
+        });
+        add_to_fill(Vertex {
+            position: map([x+width,y+height], scale),
+            color: CANVAS.color,
+            tex_coords: map([x+width,y+height], scale),
+        });
+        add_to_fill(Vertex {
+            position: map([x,y], scale),
+            color: CANVAS.color,
+            tex_coords: map([x,y], scale),
+        });
+        add_to_fill(Vertex {
+            position: map([x,y+height], scale),
+            color: CANVAS.color,
+            tex_coords: map([x,y+height], scale),
+        });
+        TEXTURE = Some((self.image_data,self.dimensions)); 
+    }
+}
 }

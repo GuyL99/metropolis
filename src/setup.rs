@@ -25,11 +25,14 @@ pub struct Preper {
     pub images: Vec<Arc<SwapchainImage<Window>>>,
     pub render_pass: Arc<dyn RenderPassAbstract + Send + Sync>,
     pub fill_pipeline: Arc<dyn GraphicsPipelineAbstract + Send + Sync>,
+    pub tex_pipeline: Arc<dyn GraphicsPipelineAbstract + Send + Sync>,
     pub stroke_pipeline: Arc<dyn GraphicsPipelineAbstract + Send + Sync>,
     pub dynamic_state: DynamicState,
     pub framebuffers: Vec<Arc<dyn FramebufferAbstract + Send + Sync>>,
     pub recreate_swapchain: bool,
     pub previous_frame_end: Option<Box<dyn GpuFuture>>,
+//    pub tex_future:CommandBufferExecFuture<NowFuture, AutoCommandBuffer>,
+  //  pub texture:Arc<ImmutableImage<Format>>
 }
 pub fn init(w: u16, h: u16) -> (Preper, EventsLoop) {
     let instance = {
@@ -113,6 +116,7 @@ pub fn init(w: u16, h: u16) -> (Preper, EventsLoop) {
     );
     let vs = vs::Shader::load(device.clone()).unwrap();
     let fs = fs::Shader::load(device.clone()).unwrap();
+    let fsimg = fsimg::Shader::load(device.clone()).unwrap();
     let fill_pipeline = Arc::new(
         GraphicsPipeline::start()
             .vertex_input_single_buffer::<Vertex>()
@@ -121,6 +125,19 @@ pub fn init(w: u16, h: u16) -> (Preper, EventsLoop) {
             .line_width_dynamic()
             .viewports_dynamic_scissors_irrelevant(1)
             .fragment_shader(fs.main_entry_point(), ())
+            .blend_alpha_blending()
+            .render_pass(Subpass::from(render_pass.clone(), 0).unwrap())
+            .build(device.clone())
+            .unwrap(),
+    );
+    let tex_pipeline = Arc::new(
+        GraphicsPipeline::start()
+            .vertex_input_single_buffer::<Vertex>()
+            .vertex_shader(vs.main_entry_point(), ())
+            .triangle_list()
+            .line_width_dynamic()
+            .viewports_dynamic_scissors_irrelevant(1)
+            .fragment_shader(fsimg.main_entry_point(), ())
             .blend_alpha_blending()
             .render_pass(Subpass::from(render_pass.clone(), 0).unwrap())
             .build(device.clone())
@@ -159,6 +176,7 @@ pub fn init(w: u16, h: u16) -> (Preper, EventsLoop) {
             images,
             render_pass,
             fill_pipeline,
+            tex_pipeline,
             stroke_pipeline,
             dynamic_state,
             framebuffers,

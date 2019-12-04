@@ -12,6 +12,9 @@ fn main() {
         if posy + 50 < height {
             posy += spd;
         }
+        unsafe{
+            println!("{}",FPS);
+        }
         fill(rgb(255, 0, 100));
         //fill(0,0,00);
         //circle(400,posy,50);

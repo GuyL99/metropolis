@@ -15,6 +15,10 @@ use winit::{Event, WindowEvent};
 use crate::text::{DrawText, DrawTextTrait};
 use crate::{FPS,HEIGHT,WIDTH};
 use std::time::{Duration, Instant};
+use vulkano::image::{ImmutableImage, Dimensions};
+use vulkano::sampler::{Sampler, SamplerAddressMode, Filter, MipmapMode};
+use vulkano::descriptor::descriptor_set::PersistentDescriptorSet;
+use vulkano::format::Format;
 #[derive(Copy, Clone, PartialEq)]
 pub struct Canvas {
     pub size: (u16, u16),
@@ -60,19 +64,53 @@ pub static mut CANVAS: Canvas = Canvas {
 };
 pub static mut FILL_VERTECIES: Option<Vec<Vertex>> = None;
 pub static mut STROKE_VERTECIES: Option<Vec<Vertex>> = None;
-pub static mut TEXT_VEC:Option<Vec<Stext>> = None;
+pub static mut TEXT_VEC: Option<Vec<Stext>> = None;
+pub static mut TEXTURE:Option<(Vec<u8>,Dimensions)> = None;
 impl Canvas {
     pub fn show<F>(self, mut draw_fn: F)
     where
         F: FnMut() + 'static,
     {
+        let set;
+        let mut previous_frame_end;
         let (mut env, mut events_loop) = init(self.size.0, self.size.1);
+        unsafe{
+        draw_fn();
+        match &TEXTURE{
+            Some((vec1,dim1))=>{
+                let vec_tex = vec1.to_vec();
+                let dimensions = *dim1;
+        let (texture, tex_future) = {
+                ImmutableImage::from_iter(
+                vec_tex.iter().cloned(),
+                dimensions,
+                Format::R8G8B8A8Srgb,
+                env.queue.clone()
+                ).unwrap()
+            };
+    let sampler = Sampler::new(env.device.clone(), Filter::Linear, Filter::Linear,
+    MipmapMode::Nearest, SamplerAddressMode::Repeat, SamplerAddressMode::Repeat,
+    SamplerAddressMode::Repeat, 0.0, 1.0, 0.0, 0.0).unwrap();
+    set = Some(Arc::new(PersistentDescriptorSet::start(env.tex_pipeline.clone(),0)
+    .add_sampled_image(texture.clone(), sampler.clone()).unwrap()
+    .build().unwrap()));
+        previous_frame_end = Box::new(tex_future) as Box<dyn GpuFuture>;
+            },
+            None =>{
+                set =None;
+                previous_frame_end =Box::new(env.previous_frame_end.unwrap());
+            }
+        }
+        }
         let mut text = DrawText::new(env.device.clone(), env.queue.clone(), env.swapchain.clone(), &env.images);
         let mut counter1 = 0;
         let start = Instant::now();
         let mut end;
+        let mut recreate_swapchain = env.recreate_swapchain;
+
         loop {
             let mut done = false;
+                previous_frame_end.cleanup_finished();
             events_loop.poll_events(|ev| match ev {
                 Event::WindowEvent {
                     event: WindowEvent::CloseRequested,
@@ -81,7 +119,7 @@ impl Canvas {
                 Event::WindowEvent {
                     event: WindowEvent::Resized(_),
                     ..
-                } => env.recreate_swapchain = true,
+                } => recreate_swapchain = true,
                 _ => (),
             });
             if done {
@@ -116,8 +154,7 @@ impl Canvas {
                 )
                 .unwrap();
                 let window = env.surface.window();
-                env.previous_frame_end.as_mut().unwrap().cleanup_finished();
-                if env.recreate_swapchain {
+                if recreate_swapchain {
                     let dimensions = {
                         let dimensions: (u32, u32) = window
                             .get_inner_size()
@@ -139,13 +176,13 @@ impl Canvas {
                         &mut env.dynamic_state,
                     );
                     text = DrawText::new(env.device.clone(), env.queue.clone(), env.swapchain.clone(), &new_images);
-                    env.recreate_swapchain = false;
+                    recreate_swapchain = false;
                 }
                 let (image_num, acquire_future) =
                     match swapchain::acquire_next_image(env.swapchain.clone(), None) {
                         Ok(r) => r,
                         Err(AcquireError::OutOfDate) => {
-                            env.recreate_swapchain = true;
+                            recreate_swapchain = true;
                             continue;
                         }
                         Err(err) => panic!("{:?}", err),
@@ -157,6 +194,38 @@ impl Canvas {
                         for txt in vec1{
                             text.queue_text(txt.position[0],txt.position[0], CANVAS.text_size, txt.color,txt.text);
                         }
+                        match set.clone(){
+                            Some(set)=>{
+                command_buffer = AutoCommandBufferBuilder::primary_one_time_submit(
+                    env.device.clone(),
+                    env.queue.family(),
+                )
+                .unwrap()
+                .begin_render_pass(env.framebuffers[image_num].clone(), false, clear_values)
+                .unwrap()
+                .draw(
+                    env.tex_pipeline.clone(),
+                    &env.dynamic_state,
+                    vec![fill_vertex_buffer.clone()],
+                    set.clone(),
+                    (),
+                )
+                .unwrap()
+                .draw(
+                    env.stroke_pipeline.clone(),
+                    &env.dynamic_state,
+                    vec![stroke_vertex_buffer.clone()],
+                    (),
+                    (),
+                )
+                .unwrap()
+                .end_render_pass()
+                .unwrap()
+                .draw_text(&mut text, image_num)
+                .build()
+                .unwrap();
+                            },
+                None=>{
                 command_buffer = AutoCommandBufferBuilder::primary_one_time_submit(
                     env.device.clone(),
                     env.queue.family(),
@@ -185,8 +254,42 @@ impl Canvas {
                 .draw_text(&mut text, image_num)
                 .build()
                 .unwrap();
+                }
+                        }
                     }else{
+                        match set.clone(){
+                            Some(set)=>{
                         command_buffer = AutoCommandBufferBuilder::primary_one_time_submit(
+                    env.device.clone(),
+                    env.queue.family(),
+                )
+                .unwrap()
+                .begin_render_pass(env.framebuffers[image_num].clone(), false, clear_values)
+                .unwrap()
+                .draw(
+                    env.tex_pipeline.clone(),
+                    &env.dynamic_state,
+                    vec![fill_vertex_buffer.clone()],
+                    set.clone(),
+                    (),
+                )
+                .unwrap()
+                .draw(
+                    env.stroke_pipeline.clone(),
+                    &env.dynamic_state,
+                    vec![stroke_vertex_buffer.clone()],
+                    (),
+                    (),
+                )
+                .unwrap()
+                .end_render_pass()
+                .unwrap()
+                .build()
+                .unwrap();
+                            },
+
+                None =>{
+                    command_buffer = AutoCommandBufferBuilder::primary_one_time_submit(
                     env.device.clone(),
                     env.queue.family(),
                 )
@@ -213,6 +316,8 @@ impl Canvas {
                 .unwrap()
                 .build()
                 .unwrap();
+                }
+                        }
                     }
                     },
                     None => {
@@ -227,37 +332,8 @@ impl Canvas {
                 .unwrap();
                     }
                 };
-                /*command_buffer = AutoCommandBufferBuilder::primary_one_time_submit(
-                    env.device.clone(),
-                    env.queue.family(),
-                )
-                .unwrap()
-                .begin_render_pass(env.framebuffers[image_num].clone(), false, clear_values)
-                .unwrap()
-                .draw(
-                    env.fill_pipeline.clone(),
-                    &env.dynamic_state,
-                    vec![fill_vertex_buffer.clone()],
-                    (),
-                    (),
-                )
-                .unwrap()
-                .draw(
-                    env.stroke_pipeline.clone(),
-                    &env.dynamic_state,
-                    vec![stroke_vertex_buffer.clone()],
-                    (),
-                    (),
-                )
-                .unwrap()
-                .end_render_pass()
-                .unwrap()
-                //.draw_text(&mut text, image_num)
-                .build()
-                .unwrap();*/
-                let prev = env.previous_frame_end.take();
-                let future = prev
-                    .unwrap()
+                //let prev =/* env.*/ (&mut *previous_frame_end).take();
+                let future = previous_frame_end
                     .join(acquire_future)
                     .then_execute(env.queue.clone(), command_buffer)
                     .unwrap()
@@ -266,17 +342,17 @@ impl Canvas {
                 match future {
                     Ok(future) => {
                         future.wait(None).unwrap();
-                        env.previous_frame_end = Some(Box::new(future) as Box<_>);
+                        previous_frame_end = Box::new(future) as Box<_>;
                     }
                     Err(FlushError::OutOfDate) => {
-                        env.recreate_swapchain = true;
-                        env.previous_frame_end =
-                            Some(Box::new(sync::now(env.device.clone())) as Box<_>);
+                        recreate_swapchain = true;
+                        previous_frame_end =
+                            Box::new(sync::now(env.device.clone())) as Box<_>;
                     }
                     Err(e) => {
                         println!("{:?}", e);
-                        env.previous_frame_end =
-                            Some(Box::new(sync::now(env.device.clone())) as Box<_>);
+                        previous_frame_end =
+                            Box::new(sync::now(env.device.clone())) as Box<_>;
                     }
                 }
             end = Instant::now();
