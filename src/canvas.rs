@@ -48,6 +48,13 @@ pub fn zero_out() {
                 FILL_VERTECIES = Some(vec2);
             }
         };
+        match &TEXT_VEC {
+            None => {}
+            Some(_vec1) => {
+                let vec2 = vec![];
+                TEXT_VEC = Some(vec2);
+            }
+        };
     }
 }
 pub static mut CANVAS: Canvas = Canvas {
