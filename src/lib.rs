@@ -35,16 +35,48 @@
 //!   //show(draw);
 //!}
 //!```
+//!or you can do something similar only with a safe canvas struct(take your pick for your use case:
+//!the public canvas struct(there is actually an inner one for the static functions). it is
+//!```
+//!use metropolis::color::*;
+//!use metropolis::canvas::Canvas;
+//!fn main(){
+//!       let height = 600;
+//!   let width = 800;
+//!   //size(width, height);
+//!   let mut canv:Canvas= Canvas::new(width,height);
+//!   canv.background(grayscale(100));
+//!   let draw = |mut canvas:Canvas|->Canvas {
+//!       let curve_vec: Vec<[i64; 2]> = vec![
+//!           [0, 400],
+//!           [30, 370],
+//!           [50, 300],
+//!           [75, 257],
+//!           [80, 240],
+//!           [150, 150],
+//!          [250, 050],
+//!      ];
+//!       canvas.bezierCurve(curve_vec);
+//!        canvas
+//!   };
+//!   canv.show(draw);
+//!}
+//!```
+//!as you may see the draw loop is designed a bit different.
 mod vertex;
 use vertex::*;
 mod mapping;
 mod setup;
 mod shaders;
 use mapping::*;
-mod canvas;
+///the canvas mod contains the canvas and image structs used to create multiple and multithreading
+///safe canvases
+pub mod canvas;
+pub use canvas::*;
 mod text;
 mod compute;
-use canvas::*;
+mod canvas_glob;
+use canvas_glob::*;
 ///a module used for coloring in this crate, will be adding more functions and easier set in the
 ///future.
 pub mod color;
@@ -57,8 +89,7 @@ pub static mut FPS:f32 = 0f32;
 pub static mut HEIGHT:u16 = 0u16;
 pub static mut WIDTH:u16 = 0u16;
 use vulkano::image::Dimensions;
-use png;
-use std::fs::File;
+use image::*;
 fn add_to_text(pusher: Stext) {
     unsafe {
         match &TEXT_VEC {
@@ -818,18 +849,16 @@ pub struct Image{
 ///should strictly be used outside the draw loop! 
 #[allow(non_snake_case)]
 pub fn img(path:&str)->Image{
-        let decoder = png::Decoder::new(File::open(path).unwrap());
-        let (info, mut reader) = decoder.read_info().unwrap();
-        let dimensions = Dimensions::Dim2d { width: info.width, height: info.height };
-        let mut image_data = Vec::new();
-        image_data.resize((info.width * info.height * 4) as usize, 0);
-        reader.next_frame(&mut image_data).unwrap();
+        let img = image::open(path).unwrap();
+        img.resize(img.width() , img.height() ,image::imageops::FilterType::Nearest);
+        let image_data = img.raw_pixels(); 
+        let dimensions = Dimensions::Dim2d { width: img.width(), height: img.height() };
         Image{image_data,dimensions}
 }
 impl Image{
     ///this function shoould be used inside the draw loop, because it does not load an image, it
     ///simply displays a loaded image
-pub fn display(self,x:u16,y:u16,width:u16,height:u16){
+pub fn display(self,x:u16,y:u16){
     unsafe {
         let scale = [CANVAS.size.0, CANVAS.size.1];
         add_to_fill(Vertex {
@@ -838,19 +867,19 @@ pub fn display(self,x:u16,y:u16,width:u16,height:u16){
             tex_coords: map([x,y], scale),
         });
         add_to_fill(Vertex {
-            position: map([x+width,y], scale),
+            position: map([x+(self.dimensions.width() as u16),y], scale),
             color: CANVAS.color,
-            tex_coords: map([x+width,y], scale),
+            tex_coords: map([x+(self.dimensions.width() as u16),y], scale),
         });
         add_to_fill(Vertex {
-            position: map([x+width,y+height], scale),
+            position: map([x+(self.dimensions.width() as u16),y+(self.dimensions.height() as u16)], scale),
             color: CANVAS.color,
-            tex_coords: map([x+width,y+height], scale),
+            tex_coords: map([x+(self.dimensions.width() as u16),y+(self.dimensions.height() as u16)], scale),
         });
         add_to_fill(Vertex {
-            position: map([x+width,y+height], scale),
+            position: map([x+(self.dimensions.width() as u16),y+(self.dimensions.height() as u16)], scale),
             color: CANVAS.color,
-            tex_coords: map([x+width,y+height], scale),
+            tex_coords: map([x+(self.dimensions.width() as u16),y+(self.dimensions.height() as u16)], scale),
         });
         add_to_fill(Vertex {
             position: map([x,y], scale),
@@ -858,9 +887,9 @@ pub fn display(self,x:u16,y:u16,width:u16,height:u16){
             tex_coords: map([x,y], scale),
         });
         add_to_fill(Vertex {
-            position: map([x,y+height], scale),
+            position: map([x,y+(self.dimensions.height() as u16)], scale),
             color: CANVAS.color,
-            tex_coords: map([x,y+height], scale),
+            tex_coords: map([x,y+(self.dimensions.height() as u16)], scale),
         });
         TEXTURE = Some((self.image_data,self.dimensions)); 
     }

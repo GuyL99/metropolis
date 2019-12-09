@@ -1,5 +1,5 @@
 # Metropolis
-![crates.io](https://img.shields.io/crates/v/metropolis.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![doc.rs](https://docs.rs/metropolis/badge.svg?version=0.5.1)
+![crates.io](https://img.shields.io/crates/v/metropolis.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![doc.rs](https://docs.rs/metropolis/badge.svg?version=0.6.0)
 ## What is it and what is it for?
 
 Metropolis is an easy to use high level graphics renderer written in rust, utilizing [vulkano](https://crates.io/crates/vulkano) and [winit](https://crates.io/crates/winit),
@@ -36,7 +36,7 @@ Later I hope to develop a game engine using it but first I'll finish the rendere
 Add the following to your Cargo.toml:
 ```rust
 [dependencies]
-metropolis = "0.5.1"
+metropolis = "0.6.0"
 ```
 First use import the crate:
 ```rust
@@ -80,9 +80,11 @@ Finally use the show() function to run the whole thing:
 If you noticed - this program displays gravity working on an ellipse
 
 ## release notes:
-### this version is a bug fix of text:
-fixed a bug that caused the text vertecies to not be cleared at he end of each iteration of the draw function
+### this version adds the public canvas struct:
+you can now use a public mutithreading safe canvas struct, the matching example is called canvas_struct
 ### former versions release notes:
+#### 0.6.0
+fixed a bug that caused the text vertecies to not be cleared at he end of each iteration of the draw function
 #### 0.5.0
 some of the math functions were deprecated due to community feedback:sin,cos,tan,abs
 I added an image module that allows you to load an image and display it(see the example for more details)
