@@ -43,7 +43,7 @@ pub struct CanvasGlob {
     pub key:Key,
 }
 impl CanvasGlob{
-    pub fn show<F>(&mut self, mut draw_fn:F)
+    pub fn show<F>(mut self, mut draw_fn:F)
     where F :FnMut()+ 'static,
     {
                 let set;

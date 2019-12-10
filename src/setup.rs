@@ -46,6 +46,8 @@ pub fn init(w: u16, h: u16) -> (Preper, EventsLoop) {
             width: w as f64,
             height: h as f64,
         })
+        .with_title("Canvas")
+        .with_decorations(true)
         .build_vk_surface(&events_loop, instance.clone())
         .unwrap();
     let window = surface.window();

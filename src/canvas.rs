@@ -11,7 +11,7 @@ use vulkano::swapchain::{AcquireError, SwapchainCreationError};
 use vulkano::sync;
 use vulkano::sync::{FlushError, GpuFuture};
 use winit::Window;
-use winit::{Event, WindowEvent};
+use winit::{ModifiersState,KeyboardInput,ElementState,Event, WindowEvent,VirtualKeyCode};
 use crate::text::{DrawText, DrawTextTrait};
 use std::time::{Duration, Instant};
 use vulkano::image::{ImmutableImage, Dimensions};
@@ -23,6 +23,7 @@ use crate::mapping;
 use crate::mapping::*;
 use image::*;
 use crate::math::{bezier_points, catmull_rom_chain};
+pub use winit::VirtualKeyCode as keyCode;
 fn window_size_dependent_setup(
     images: &[Arc<SwapchainImage<Window>>],
     render_pass: Arc<dyn RenderPassAbstract + Send + Sync>,
@@ -101,9 +102,40 @@ pub struct Canvas {
     text_vec: Vec<Stext>,   
     stroke_vec: Vec<Vertex>,     
     texture:Option<(Vec<u8>,Dimensions)>,
+    key:Key,
     //draw:FnMut() + 'static, 
 }
+#[derive(Copy,Clone,PartialEq)]
+struct Key{
+    pub keycode:Option<VirtualKeyCode>,
+    pub moder:ModifiersState,
+}
+impl Key{
+    pub fn new()->Key{
+        let moder = ModifiersState{shift:false,ctrl:false,alt:false,logo:false};    
+        let keycode = None;
+        Key{keycode,moder}
+    }
+    pub fn get_mod(self)->ModifiersState{
+        self.moder
+    }
+    pub fn zero_out_key(mut self){
+        self.keycode = None;
+    }
+}
 impl Canvas {
+    ///returns the current key that is pressed.
+    #[allow(non_snake_case)]
+    pub fn keyPressed(&mut self)->VirtualKeyCode{
+        match self.key.keycode{
+        Some(key)=> {return key;},
+        None=> {return VirtualKeyCode::Power;}
+        }
+    }
+    ///returns the current state of the modifiers
+    pub fn get_modifiers(self)->ModifiersState{
+        self.key.get_mod()
+    }
     ///sets the background color(using the color struct).
     pub fn background(&mut self,color:Color){
         let r = color.get_r();
@@ -156,7 +188,6 @@ impl Canvas {
     ///enables fill and receives the color of the fill(the struct color) and sets the fill color to be
     ///the color.
     pub fn fill(&mut self, color:Color) {
-    println!("check");
         let r = color.get_r();
         let g = color.get_g();
         let b = color.get_b();
@@ -202,6 +233,7 @@ impl Canvas {
     fill_vec: vec![],
     stroke_vec: vec![],
     texture:None,
+    key:Key::new(),
         }
     }
     ///this is the function used to run the animation
@@ -257,6 +289,24 @@ impl Canvas {
                     event: WindowEvent::Resized(_),
                     ..
                 } => recreate_swapchain = true,
+                Event::WindowEvent{event,..}=>
+                match event{
+                    WindowEvent::KeyboardInput{
+                        input:KeyboardInput{
+                            state: ElementState::Pressed,
+                            virtual_keycode: Some(key),
+                            modifiers,
+                            ..
+                        },
+                        ..
+                } => {
+                    if key == VirtualKeyCode::W && modifiers.ctrl{
+                        done = true;
+                    }
+                    self.key = Key{keycode:Some(key),moder:modifiers};
+                },
+                _=>{},
+            }
                 _ => (),
             });
             if done {
@@ -470,6 +520,7 @@ impl Canvas {
             self.stroke_vec = vec![];
             //draw_fn(self.clone());
             self= draw_fn(self);
+            self.key.zero_out_key();
             counter1+=1;
         }
         //});

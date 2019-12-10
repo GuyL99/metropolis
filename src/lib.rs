@@ -90,6 +90,8 @@ pub static mut HEIGHT:u16 = 0u16;
 pub static mut WIDTH:u16 = 0u16;
 use vulkano::image::Dimensions;
 use image::*;
+pub use winit::VirtualKeyCode as keyCode;
+use winit::ModifiersState;
 fn add_to_text(pusher: Stext) {
     unsafe {
         match &TEXT_VEC {
@@ -136,6 +138,22 @@ fn add_to_stroke(pusher: Vertex) {
 pub fn size(width: u16, height: u16) {
     unsafe {
         CANVAS.size = (width, height);
+    }
+}
+///returns the current key that is pressed.
+#[allow(non_snake_case)]
+pub fn keyPressed()->keyCode{
+    unsafe{
+    match CANVAS.key.keycode{
+    Some(key)=> {return key;},
+    None=> {return keyCode::Power;}
+    }
+    }
+}
+///returns the current state of the modifiers
+pub fn get_modifiers()->ModifiersState{
+    unsafe{
+    CANVAS.key.get_mod()
     }
 }
 ///recieves f32 ext size and sets the canvases text_size to that size
