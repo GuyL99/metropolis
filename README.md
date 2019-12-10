@@ -1,5 +1,5 @@
 # Metropolis
-![crates.io](https://img.shields.io/crates/v/metropolis.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![doc.rs](https://docs.rs/metropolis/badge.svg?version=0.6.0)
+![crates.io](https://img.shields.io/crates/v/metropolis.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![doc.rs](https://docs.rs/metropolis/badge.svg?version=0.6.1)
 ## What is it and what is it for?
 
 Metropolis is an easy to use high level graphics renderer written in rust, utilizing [vulkano](https://crates.io/crates/vulkano) and [winit](https://crates.io/crates/winit),
@@ -36,7 +36,7 @@ Later I hope to develop a game engine using it but first I'll finish the rendere
 Add the following to your Cargo.toml:
 ```rust
 [dependencies]
-metropolis = "0.6.0"
+metropolis = "0.6.1"
 ```
 First use import the crate:
 ```rust
@@ -81,9 +81,11 @@ If you noticed - this program displays gravity working on an ellipse
 
 ## release notes:
 ### this version adds the public canvas struct:
-you can now use a public mutithreading safe canvas struct, the matching example is called canvas_struct
+added the possiblity to use keyboard events see the examples:key_event and key_event_glob
 ### former versions release notes:
 #### 0.6.0
+you can now use a public mutithreading safe canvas struct, the matching example is called canvas_struct
+#### 0.5.1 
 fixed a bug that caused the text vertecies to not be cleared at he end of each iteration of the draw function
 #### 0.5.0
 some of the math functions were deprecated due to community feedback:sin,cos,tan,abs
@@ -110,16 +112,13 @@ there is a bezier curve, 2 function - one for vertex(4 x's and y's) and one for 
 
 ### If you want to checkout the crate further that you should take a look in the [examples](https://github.com/GuyL99/metropolis/tree/master/examples) folder.
 ## Currently being developed:
-1)adding a struct impl based module(next version).</br>
-2)making the static mut into a lazy_static(in development).</br>
-3)dynamic line width.</br>
-4)improve image module</br>
-5)up the curve, circle and ellipse efficiency.</br>
-6)vector operations(scalar mult, vec dot, vec to vec add...).</br>
-7)add more drawing functions.</br>
-8)adding unit tests.</br>
-9)3D.</br>
-10)anithyng else from community feedback!</br>
+1)dynamic line width.</br>
+2)improve image module</br>
+3)making the static mut into a lazy_static(in development).</br>
+4)vector operations(scalar mult, vec dot, vec to vec add...).</br>
+5)adding unit tests.</br>
+6)3D.</br>
+7)anithyng else from community feedback!</br>
 
 # License 
 This crate is primarily distributed under the terms of the MIT license
