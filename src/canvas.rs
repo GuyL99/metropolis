@@ -12,6 +12,7 @@ use vulkano::sync;
 use vulkano::sync::{FlushError, GpuFuture};
 use winit::Window;
 use winit::{ModifiersState,KeyboardInput,ElementState,Event, WindowEvent,VirtualKeyCode};
+use winit::dpi::LogicalPosition;
 use crate::text::{DrawText, DrawTextTrait};
 use std::time::{Duration, Instant};
 use vulkano::image::{ImmutableImage, Dimensions};
@@ -95,7 +96,7 @@ pub struct Canvas {
     fill: bool,
     fill_color: [f32; 4],
     background_color: [f32; 4],
-    fps: f32,
+    pub fps: f32,
     resizeable: bool,
     text_size: f32,
     fill_vec: Vec<Vertex>,     
@@ -103,6 +104,7 @@ pub struct Canvas {
     stroke_vec: Vec<Vertex>,     
     texture:Option<(Vec<u8>,Dimensions)>,
     key:Key,
+    cursor_pos:(u16,u16),
     //draw:FnMut() + 'static, 
 }
 #[derive(Copy,Clone,PartialEq)]
@@ -119,6 +121,8 @@ impl Key{
     pub fn get_mod(self)->ModifiersState{
         self.moder
     }
+    #[allow(unknown_lints)]
+    #[allow(unused_functions)]
     pub fn zero_out_key(mut self){
         self.keycode = None;
     }
@@ -131,6 +135,16 @@ impl Canvas {
         Some(key)=> {return key;},
         None=> {return VirtualKeyCode::Power;}
         }
+    }
+    ///returns the x position of the mouse
+    #[allow(non_snake_case)]
+    pub fn mouseX(&self)->u16{
+        self.cursor_pos.0
+    }
+    ///returns the y position of the mouse
+    #[allow(non_snake_case)]
+    pub fn mouseY(&self)->u16{
+        self.cursor_pos.1
     }
     ///returns the current state of the modifiers
     pub fn get_modifiers(self)->ModifiersState{
@@ -234,6 +248,7 @@ impl Canvas {
     stroke_vec: vec![],
     texture:None,
     key:Key::new(),
+    cursor_pos:(0,0),
         }
     }
     ///this is the function used to run the animation
@@ -305,8 +320,17 @@ impl Canvas {
                     }
                     self.key = Key{keycode:Some(key),moder:modifiers};
                 },
+                    WindowEvent::CursorMoved{
+                        position:LogicalPosition{x:posx,y:posy},
+                        ..
+                   }=>{self.cursor_pos = (posx as u16,posy as u16);}
                 _=>{},
             }
+                /*
+                Event::WindowEvent{
+                    curs:CursorMoved{
+                    position:LogicalPosition{x:posx,y:posy}
+                }}=> {self.cursor_pos = (posx,posy);}*/
                 _ => (),
             });
             if done {
@@ -520,7 +544,7 @@ impl Canvas {
             self.stroke_vec = vec![];
             //draw_fn(self.clone());
             self= draw_fn(self);
-            self.key.zero_out_key();
+            self.key.keycode = Some(VirtualKeyCode::Power);
             counter1+=1;
         }
         //});

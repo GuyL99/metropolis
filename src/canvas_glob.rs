@@ -8,6 +8,7 @@ use vulkano::swapchain::{AcquireError, SwapchainCreationError};
 use vulkano::sync;
 use vulkano::sync::{FlushError, GpuFuture};
 use winit::{ElementState,KeyboardInput,Event, WindowEvent,VirtualKeyCode,ModifiersState};
+use winit::dpi::LogicalPosition;
 use crate::text::{DrawText, DrawTextTrait};
 use crate::{FPS,HEIGHT,WIDTH};
 use std::time::{Duration, Instant};
@@ -41,6 +42,7 @@ pub struct CanvasGlob {
     pub resizeable: bool,
     pub text_size: f32,
     pub key:Key,
+    pub cursor_pos:(u16,u16),
 }
 impl CanvasGlob{
     pub fn show<F>(&mut self, mut draw_fn:F)
@@ -111,6 +113,10 @@ impl CanvasGlob{
                     }
                     self.key = Key{keycode:Some(key),moder:modifiers};
                 },
+                    WindowEvent::CursorMoved{
+                        position:LogicalPosition{x:posx,y:posy},
+                        ..
+                   }=>{self.cursor_pos = (posx as u16,posy as u16);}
                 _=>{},
                 }
                 _ => (),
@@ -358,7 +364,7 @@ impl CanvasGlob{
             }
             zero_out();
             draw_fn();
-            self.key.zero_out_key();
+            self.key.keycode = Some(VirtualKeyCode::Power);
             counter1+=1;
         }
         //});
@@ -401,6 +407,7 @@ pub static mut CANVAS: CanvasGlob = CanvasGlob {
     resizeable: false,
     text_size: 18.0,
     key:Key{keycode:None,moder:ModifiersState{shift:false,ctrl:false,alt:false,logo:false},},
+    cursor_pos:(0,0),
 };
 pub static mut FILL_VERTECIES: Option<Vec<Vertex>> = None;
 pub static mut STROKE_VERTECIES: Option<Vec<Vertex>> = None;

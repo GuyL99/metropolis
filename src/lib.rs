@@ -134,6 +134,20 @@ fn add_to_stroke(pusher: Vertex) {
         };
     }
 }
+///returns the x position of the mouse
+#[allow(non_snake_case)]
+pub fn mouseX()->u16{
+    unsafe{
+    CANVAS.cursor_pos.0
+    }
+}
+///returns the y position of the mouse
+#[allow(non_snake_case)]
+pub fn mouseY()->u16{
+    unsafe{
+    CANVAS.cursor_pos.1
+    }
+}
 ///creates the canvas with the width and height sent to this function
 pub fn size(width: u16, height: u16) {
     unsafe {

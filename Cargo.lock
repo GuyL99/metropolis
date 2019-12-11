@@ -440,7 +440,7 @@ dependencies = [
 
 [[package]]
 name = "metropolis"
-version = "0.6.0"
+version = "0.6.1"
 dependencies = [
  "image 0.22.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "rusttype 0.7.9 (registry+https://github.com/rust-lang/crates.io-index)",

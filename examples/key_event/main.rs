@@ -19,7 +19,7 @@ fn main(){
 		keyCode::Key9=>{str_from_count = "9";},
 		_=>{},
 }
-        println!("{:?}",canvas.keyPressed());
+        println!("{:?}",canvas.mouseX());
 		canvas.text(300,300,str_from_count);
         canvas
 	};
