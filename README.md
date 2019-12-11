@@ -81,7 +81,7 @@ If you noticed - this program displays gravity working on an ellipse
 
 ## release notes:
 ### this version adds the public canvas struct:
-added the possiblity to use keyboard events see the examples:key_event and key_event_glob
+added the possiblity to use keyboard events see the examples:key_event and key_event_glob and mouse positions
 ### former versions release notes:
 #### 0.6.0
 you can now use a public mutithreading safe canvas struct, the matching example is called canvas_struct
