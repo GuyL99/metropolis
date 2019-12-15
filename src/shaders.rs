@@ -11,7 +11,7 @@ layout(location = 1) out vec2 _tex_coords;
 void main() {
     gl_Position = vec4(position, 0.0, 1.0);
     _color = color;
-    _tex_coords = position+ vec2(tex_coords*2);
+    _tex_coords = position+vec2(tex_coords*2);//position+ vec2(tex_coords*2);
 }"
     }
 }

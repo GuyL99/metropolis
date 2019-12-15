@@ -13,6 +13,7 @@ use vulkano::sync::{FlushError, GpuFuture};
 use winit::Window;
 use winit::{ModifiersState,KeyboardInput,ElementState,Event, WindowEvent,VirtualKeyCode};
 use winit::dpi::LogicalPosition;
+use winit::MouseScrollDelta;
 use crate::text::{DrawText, DrawTextTrait};
 use std::time::{Duration, Instant};
 use vulkano::image::{ImmutableImage, Dimensions};
@@ -25,6 +26,7 @@ use crate::mapping::*;
 use image::*;
 use crate::math::{bezier_points, catmull_rom_chain};
 pub use winit::VirtualKeyCode as keyCode;
+pub use winit::MouseButton;
 fn window_size_dependent_setup(
     images: &[Arc<SwapchainImage<Window>>],
     render_pass: Arc<dyn RenderPassAbstract + Send + Sync>,
@@ -105,7 +107,39 @@ pub struct Canvas {
     texture:Option<(Vec<u8>,Dimensions)>,
     key:Key,
     cursor_pos:(u16,u16),
+    mouse:Mouse,
+    mouse_scroll:MouseScroll,
     //draw:FnMut() + 'static, 
+}
+#[derive(Copy,Clone,PartialEq)]
+struct MouseScroll{
+    pub delta:(i64,i64),
+    pub moder:ModifiersState,
+}
+impl MouseScroll{
+    pub fn new()->MouseScroll{
+        let moder = ModifiersState{shift:false,ctrl:false,alt:false,logo:false};    
+        let delta = (0,0);
+        MouseScroll{delta,moder}
+    }
+    pub fn delta_x(self)->i64{
+        self.delta.0
+    }
+    pub fn delta_y(self)->i64{
+        self.delta.1//.PixelDelta.y as i64
+    }
+}
+#[derive(Copy,Clone,PartialEq)]
+struct Mouse{
+    pub btn:Option<MouseButton>,
+    pub moder:ModifiersState,
+}
+impl Mouse{
+    pub fn new()->Mouse{
+        let moder = ModifiersState{shift:false,ctrl:false,alt:false,logo:false};    
+        let btn = None;
+        Mouse{btn,moder}
+    }
 }
 #[derive(Copy,Clone,PartialEq)]
 struct Key{
@@ -121,13 +155,16 @@ impl Key{
     pub fn get_mod(self)->ModifiersState{
         self.moder
     }
-    #[allow(unknown_lints)]
-    #[allow(unused_functions)]
-    pub fn zero_out_key(mut self){
-        self.keycode = None;
-    }
 }
 impl Canvas {
+    ///returns the current key that is pressed on the mouse.
+    #[allow(non_snake_case)]
+    pub fn mouseClick(&mut self)->MouseButton{
+        match self.mouse.btn{
+        Some(btn)=> {return btn;},
+        None=> {return MouseButton::Other(99);}
+        }
+    }
     ///returns the current key that is pressed.
     #[allow(non_snake_case)]
     pub fn keyPressed(&mut self)->VirtualKeyCode{
@@ -135,6 +172,16 @@ impl Canvas {
         Some(key)=> {return key;},
         None=> {return VirtualKeyCode::Power;}
         }
+    }
+    ///returns the x scroll delta of the mouse
+    #[allow(non_snake_case)]
+    pub fn mouseScrollX(&self)->i64{
+        self.mouse_scroll.delta_x()
+    }
+    ///returns the y scroll delta of the mouse
+    #[allow(non_snake_case)]
+    pub fn mouseScrollY(&self)->i64{
+        self.mouse_scroll.delta_y()
     }
     ///returns the x position of the mouse
     #[allow(non_snake_case)]
@@ -249,6 +296,8 @@ impl Canvas {
     texture:None,
     key:Key::new(),
     cursor_pos:(0,0),
+    mouse:Mouse::new(),
+    mouse_scroll:MouseScroll::new(),
         }
     }
     ///this is the function used to run the animation
@@ -323,14 +372,24 @@ impl Canvas {
                     WindowEvent::CursorMoved{
                         position:LogicalPosition{x:posx,y:posy},
                         ..
-                   }=>{self.cursor_pos = (posx as u16,posy as u16);}
+                   }=>{self.cursor_pos = (posx as u16,posy as u16);},
+                    WindowEvent::MouseInput{
+                            state: ElementState::Pressed,
+                            button: button1,
+                            modifiers,
+                            ..
+                } => {
+                    self.mouse = Mouse{btn:Some(button1),moder:modifiers};
+                },
+                    WindowEvent::MouseWheel{
+                            delta: MouseScrollDelta::PixelDelta(pos),//{x:posx,y:posy},
+                            modifiers,
+                            ..
+                } => {
+                    self.mouse_scroll = MouseScroll{delta:(pos.x as i64,pos.y as i64),moder:modifiers};
+                },
                 _=>{},
             }
-                /*
-                Event::WindowEvent{
-                    curs:CursorMoved{
-                    position:LogicalPosition{x:posx,y:posy}
-                }}=> {self.cursor_pos = (posx,posy);}*/
                 _ => (),
             });
             if done {
@@ -545,6 +604,8 @@ impl Canvas {
             //draw_fn(self.clone());
             self= draw_fn(self);
             self.key.keycode = Some(VirtualKeyCode::Power);
+            self.mouse.btn = Some(MouseButton::Other(99));
+            self.mouse_scroll.delta = (0,0);
             counter1+=1;
         }
         //});

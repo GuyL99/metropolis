@@ -242,6 +242,7 @@ impl DrawText {
                            (screen_rect.max.y as f32 / screen_height as f32 - 0.5) * 2.0
                         )
                     };
+                    println!("rect coords:{:?}\nuv rect coords:{:?}",gl_rect,uv_rect);
                     vec!(
                         Vertex {
                             position:     [gl_rect.min.x, gl_rect.max.y],

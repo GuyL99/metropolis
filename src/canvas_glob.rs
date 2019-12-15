@@ -9,12 +9,14 @@ use vulkano::sync;
 use vulkano::sync::{FlushError, GpuFuture};
 use winit::{ElementState,KeyboardInput,Event, WindowEvent,VirtualKeyCode,ModifiersState};
 use winit::dpi::LogicalPosition;
+use winit::MouseScrollDelta;
 use crate::text::{DrawText, DrawTextTrait};
 use crate::{FPS,HEIGHT,WIDTH};
 use std::time::{Duration, Instant};
 use vulkano::image::{ImmutableImage, Dimensions};
 use vulkano::sampler::{Sampler, SamplerAddressMode, Filter, MipmapMode};
 use vulkano::descriptor::descriptor_set::PersistentDescriptorSet;
+use winit::MouseButton;
 use vulkano::format::Format;
 #[derive(Copy,Clone,PartialEq)]
 pub struct Key{
@@ -25,9 +27,24 @@ impl Key{
     pub fn get_mod(self)->ModifiersState{
         self.moder
     }
-    pub fn zero_out_key(mut self){
-        self.keycode = None;
+}
+#[derive(Copy,Clone,PartialEq)]
+pub struct MouseScroll{
+    pub delta:(i64,i64),
+    pub moder:ModifiersState,
+}
+impl MouseScroll{
+    pub fn delta_x(self)->i64{
+        self.delta.0
     }
+    pub fn delta_y(self)->i64{
+        self.delta.1//.PixelDelta.y as i64
+    }
+}
+#[derive(Copy,Clone,PartialEq)]
+pub struct Mouse{
+    pub btn:Option<MouseButton>,
+    pub moder:ModifiersState,
 }
 #[derive(Copy, Clone, PartialEq)]
 pub struct CanvasGlob {
@@ -43,6 +60,8 @@ pub struct CanvasGlob {
     pub text_size: f32,
     pub key:Key,
     pub cursor_pos:(u16,u16),
+    pub mouse:Mouse,
+    pub mouse_scroll:MouseScroll,
 }
 impl CanvasGlob{
     pub fn show<F>(&mut self, mut draw_fn:F)
@@ -116,7 +135,22 @@ impl CanvasGlob{
                     WindowEvent::CursorMoved{
                         position:LogicalPosition{x:posx,y:posy},
                         ..
-                   }=>{self.cursor_pos = (posx as u16,posy as u16);}
+                   }=>{self.cursor_pos = (posx as u16,posy as u16);},
+                    WindowEvent::MouseInput{
+                            state: ElementState::Pressed,
+                            button: button1,
+                            modifiers,
+                            ..
+                } => {
+                    self.mouse = Mouse{btn:Some(button1),moder:modifiers};
+                },
+                    WindowEvent::MouseWheel{
+                            delta: MouseScrollDelta::PixelDelta(pos),
+                            modifiers,
+                            ..
+                } => {
+                    self.mouse_scroll = MouseScroll{delta:(pos.x as i64,pos.y as i64),moder:modifiers};
+                },
                 _=>{},
                 }
                 _ => (),
@@ -365,6 +399,7 @@ impl CanvasGlob{
             zero_out();
             draw_fn();
             self.key.keycode = Some(VirtualKeyCode::Power);
+            self.mouse.btn = Some(MouseButton::Other(99));
             counter1+=1;
         }
         //});
@@ -408,6 +443,9 @@ pub static mut CANVAS: CanvasGlob = CanvasGlob {
     text_size: 18.0,
     key:Key{keycode:None,moder:ModifiersState{shift:false,ctrl:false,alt:false,logo:false},},
     cursor_pos:(0,0),
+    mouse:Mouse{btn:None,moder:ModifiersState{shift:false,ctrl:false,alt:false,logo:false},},
+    mouse_scroll:MouseScroll{delta:(0,0),moder:ModifiersState{shift:false,ctrl:false,alt:false,logo:false},},
+
 };
 pub static mut FILL_VERTECIES: Option<Vec<Vertex>> = None;
 pub static mut STROKE_VERTECIES: Option<Vec<Vertex>> = None;

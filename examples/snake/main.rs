@@ -13,6 +13,10 @@ fn main(){
 		keyCode::D=>{posx+=10;},
 		_=>{},
         }
+	if canvas.mouseClick() == MouseButton::Left{
+		canvas.fill(rgb(255,0,100));
+		canvas.ellipse(200,200,100,150);
+	}
         //println!("{:?}",canvas.mouseX());
         println!("{:?}",canvas.fps);
         canvas.fill(rgb(0,255,100));

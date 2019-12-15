@@ -91,6 +91,7 @@ pub static mut WIDTH:u16 = 0u16;
 use vulkano::image::Dimensions;
 use image::*;
 pub use winit::VirtualKeyCode as keyCode;
+pub use winit::MouseButton;
 use winit::ModifiersState;
 fn add_to_text(pusher: Stext) {
     unsafe {
@@ -132,6 +133,30 @@ fn add_to_stroke(pusher: Vertex) {
                 STROKE_VERTECIES = Some(vec2);
             }
         };
+    }
+}
+///returns the x scroll delta of the mouse
+#[allow(non_snake_case)]
+pub fn mouseScrollX()->i64{
+    unsafe{
+    CANVAS.mouse_scroll.delta_x()
+    }
+}
+///returns the y scroll delta of the mouse
+#[allow(non_snake_case)]
+pub fn mouseScrollY()->i64{
+    unsafe{
+    CANVAS.mouse_scroll.delta_y()
+    }
+}
+///returns the current key that is pressed on the mouse.
+#[allow(non_snake_case)]
+pub fn mouseClick()->MouseButton{
+    unsafe{
+    match CANVAS.mouse.btn{
+    Some(btn)=> {return btn;},
+    None=> {return MouseButton::Other(99);}
+    }
     }
 }
 ///returns the x position of the mouse
@@ -893,36 +918,44 @@ impl Image{
 pub fn display(self,x:u16,y:u16){
     unsafe {
         let scale = [CANVAS.size.0, CANVAS.size.1];
+        let _imsize = [self.dimensions.width() as u16,self.dimensions.height() as u16];
         add_to_fill(Vertex {
             position: map([x,y], scale),
             color: CANVAS.color,
+            //tex_coords: map_tex(map([x,y], scale),imsize),
             tex_coords: map([x,y], scale),
         });
         add_to_fill(Vertex {
             position: map([x+(self.dimensions.width() as u16),y], scale),
             color: CANVAS.color,
+            //tex_coords: map_tex(map([x+(self.dimensions.width() as u16),y], scale),imsize),
             tex_coords: map([x+(self.dimensions.width() as u16),y], scale),
         });
         add_to_fill(Vertex {
             position: map([x+(self.dimensions.width() as u16),y+(self.dimensions.height() as u16)], scale),
             color: CANVAS.color,
+            //tex_coords: map_tex(map([x+(self.dimensions.width() as u16),y+(self.dimensions.height() as u16)], scale),imsize),
             tex_coords: map([x+(self.dimensions.width() as u16),y+(self.dimensions.height() as u16)], scale),
         });
         add_to_fill(Vertex {
             position: map([x+(self.dimensions.width() as u16),y+(self.dimensions.height() as u16)], scale),
             color: CANVAS.color,
+            //tex_coords: map_tex(map([x+(self.dimensions.width() as u16),y+(self.dimensions.height() as u16)], scale),imsize),
             tex_coords: map([x+(self.dimensions.width() as u16),y+(self.dimensions.height() as u16)], scale),
         });
         add_to_fill(Vertex {
             position: map([x,y], scale),
             color: CANVAS.color,
+            //tex_coords: map_tex(map([x,y], scale),imsize),
             tex_coords: map([x,y], scale),
         });
         add_to_fill(Vertex {
             position: map([x,y+(self.dimensions.height() as u16)], scale),
             color: CANVAS.color,
-            tex_coords: map([x,y+(self.dimensions.height() as u16)], scale),
+            //tex_coords: map_tex(map([x,(y+(self.dimensions.height() as u16))], scale),imsize),
+            tex_coords: map([x,(y+(self.dimensions.height() as u16))], scale),
         });
+        println!("pos:{:?}\ntex:{:?}",FILL_VERTECIES.clone().unwrap()[0].position,FILL_VERTECIES.clone().unwrap()[0].tex_coords);
         TEXTURE = Some((self.image_data,self.dimensions)); 
     }
 }

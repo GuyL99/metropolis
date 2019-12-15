@@ -28,3 +28,12 @@ pub fn mapf(point: [f64; 2], scale: [u16; 2]) -> [f32; 2] {
     ];
     [(new_point[0] * 2.0) - 1.0, (new_point[1] * 2.0) - 1.0]
 }
+#[allow(dead_code)]
+pub fn map_tex(point: [f32; 2], scale: [u16; 2]) -> [f32; 2] {
+    let new_point: [f32; 2] = [
+        (point[0]/ scale[0] as f32),
+        (point[1]/ scale[1] as f32),
+    ];
+    new_point
+}
+

@@ -1,5 +1,5 @@
 # Metropolis
-![crates.io](https://img.shields.io/crates/v/metropolis.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![doc.rs](https://docs.rs/metropolis/badge.svg?version=0.6.1)
+![crates.io](https://img.shields.io/crates/v/metropolis.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![doc.rs](https://docs.rs/metropolis/badge.svg?version=0.7.0)
 ## What is it and what is it for?
 
 Metropolis is an easy to use high level graphics renderer written in rust, utilizing [vulkano](https://crates.io/crates/vulkano) and [winit](https://crates.io/crates/winit),
@@ -36,7 +36,7 @@ Later I hope to develop a game engine using it but first I'll finish the rendere
 Add the following to your Cargo.toml:
 ```rust
 [dependencies]
-metropolis = "0.6.1"
+metropolis = "0.7.0"
 ```
 First use import the crate:
 ```rust
@@ -81,7 +81,7 @@ If you noticed - this program displays gravity working on an ellipse
 
 ## release notes:
 ### this version adds the public canvas struct:
-added the possiblity to use keyboard events see the examples:key_event and key_event_glob and mouse positions
+added the possiblity to use keyboard events see the examples:key_event and key_event_glob. I added mouse position getters and mouse scroll delta getters.
 ### former versions release notes:
 #### 0.6.0
 you can now use a public mutithreading safe canvas struct, the matching example is called canvas_struct
