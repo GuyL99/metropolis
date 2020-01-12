@@ -9,13 +9,15 @@ let mut frames = 0;
 	let mut state =1;
     textSize(45);
 	let draw = move||{
-		
+		unsafe{
+			println!("{}",FPS);
+		}
 		frames += 1;
 
 		match count{
-		0=>{str_from_count = "0";},
-		1=>{str_from_count = "1";},
-		2=>{str_from_count = "2";},
+		0=>{str_from_count = "00";},
+		1=>{str_from_count = "10";},
+		2=>{str_from_count = "02";},
 		3=>{str_from_count = "3";},
 		4=>{str_from_count = "4";},
 		5=>{str_from_count = "5";},

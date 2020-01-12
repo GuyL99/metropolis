@@ -1,21 +1,43 @@
 use metropolis::color::*;
-use metropolis::*;
+use metropolis::canvas::*;
 fn main() {
-    size(800,600);
-    background(grayscale(100));
+    let mut canv = Canvas::new(800,600);
+    //canv.background(grayscale(100));
     let mut posy = 0;
     let mut cnt = 0;
-    let image = img("/home/guyl/Desktop/rust.png");
+    let mut r = 100;
+    let mut g = 100;
+    let mut b = 100;
+    //let image = img("/home/guyl/Desktop/saitama.png");
     //let image = img("/home/guyl/Desktop/rust.png");
-    let draw = move||{
-        image.clone().display(0,00);//,1000,1000);
+    let draw = move |mut canvas:Canvas|->Canvas{
+        //canvas.display(image.clone());
+        println!("{}",Color::from((r,g,b)));
+        canvas.background(rgb(r,g,b));
         if cnt%50 == 0{
             posy+=100;
         }
         cnt+=1;
-        unsafe{
-            println!("{}",FPS);
+        if r == 255{
+            r=0;
+            g=0;
+            b=0;
         }
+        if g == 255{
+            r+=1;
+            g=0;
+            b=0;
+        }
+        if b == 255{
+            g+=1;
+            b=0;
+        }
+        b+=1;
+        canvas.fill(Color::from((0,0,0)));
+        canvas.rect(0,0,20,20);
+        canvas.fill(Color::from((100,160,200)));
+        canvas.rect(30,30,20,20);
+        canvas
 	};
-	show(draw);
+	canv.show(draw);
 }

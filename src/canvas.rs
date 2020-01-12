@@ -23,7 +23,9 @@ use vulkano::format::Format;
 use crate::color::Color;
 use crate::mapping;
 use crate::mapping::*;
-use image::*;
+//use crate::elements::*;
+use png;
+use std::fs::File;
 use crate::math::{bezier_points, catmull_rom_chain};
 pub use winit::VirtualKeyCode as keyCode;
 pub use winit::MouseButton;
@@ -89,7 +91,7 @@ pub struct Image{
 ///}
 ///```
 ///as you may see the draw loop is designed a bit different.
-#[derive(Clone, PartialEq)]
+#[derive(Clone)]
 pub struct Canvas {
     size: (u16, u16),
     stroke: bool,
@@ -99,7 +101,6 @@ pub struct Canvas {
     fill_color: [f32; 4],
     background_color: [f32; 4],
     pub fps: f32,
-    resizeable: bool,
     text_size: f32,
     fill_vec: Vec<Vertex>,     
     text_vec: Vec<Stext>,   
@@ -109,8 +110,74 @@ pub struct Canvas {
     cursor_pos:(u16,u16),
     mouse:Mouse,
     mouse_scroll:MouseScroll,
-    //draw:FnMut() + 'static, 
 }
+/*
+#[derive(Copy,Clone)]
+struct Vecish{
+    pub data:[Vertex;3000],
+    pub loc:usize,
+}
+impl Vecish{
+    pub fn new()->Vecish{
+        Vecish{data:[Vertex{position:[0.0,0.0],color:[0.0,0.0,0.0,0.0],tex_coords:[0.0,0.0]};3000],loc:0}
+    }
+    pub fn push(&mut self,ver1:Vertex){
+        self.data[self.loc] = ver1;
+        self.loc+=1;
+    }
+    pub fn vec(self)->Vec<Vertex>{
+        let mut vec1 = vec![];
+        let mut cnt = 0;
+        for ver in self.data.iter(){
+            if cnt>=self.loc{
+                break;
+            }
+            vec1.push(*ver);
+            cnt+=1;
+        }
+        vec1
+    }
+}
+*/
+/*impl Iterator for Vecish {
+    type Item = Vertex;
+    fn next(&mut self)->Option<Self::Item>{
+        if self.loc_iter<3000{
+            return Some(self.data[self.loc_iter]);    
+            self.loc_iter+=1; 
+        }
+        None
+    }
+}*/
+/*
+#[derive(Copy,Clone)]
+struct VecishT{
+    data:[Stext;3000],
+    loc:usize,
+    loc_iter:usize,
+}
+impl Iterator for VecishT {
+    type Item = Stext;
+    fn next(&mut self)->Option<Self::Item>{
+        if self.loc_iter<3000{
+            self.loc_iter+=1; 
+            return Some(self.data[self.loc_iter-1]);    
+        }
+        None
+    }
+}
+impl VecishT{
+    pub fn new()->VecishT{
+        VecishT{data:[Stext{position:[0.0,0.0],color:[0.0,0.0,0.0,0.0],text:""};3000],loc:0,loc_iter:0}
+    }
+    pub fn push(&mut self,ver1:Stext){
+        self.data[self.loc] = ver1;
+        self.loc+=1;
+    }
+    pub fn len(self)->usize{
+        self.loc
+    }
+}*/
 #[derive(Copy,Clone,PartialEq)]
 struct MouseScroll{
     pub delta:(i64,i64),
@@ -145,12 +212,13 @@ impl Mouse{
 struct Key{
     pub keycode:Option<VirtualKeyCode>,
     pub moder:ModifiersState,
+    pub keep_key: bool,
 }
 impl Key{
     pub fn new()->Key{
         let moder = ModifiersState{shift:false,ctrl:false,alt:false,logo:false};    
         let keycode = None;
-        Key{keycode,moder}
+        Key{keycode,moder,keep_key:false}
     }
     pub fn get_mod(self)->ModifiersState{
         self.moder
@@ -165,6 +233,12 @@ impl Canvas {
         None=> {return MouseButton::Other(99);}
         }
     }
+    /*
+    ///creates a defultary button
+    pub fn button(self,x:u16,y:u16)->Button{
+        Button::new(self,x,y)
+        
+    }*/
     ///returns the current key that is pressed.
     #[allow(non_snake_case)]
     pub fn keyPressed(&mut self)->VirtualKeyCode{
@@ -172,6 +246,11 @@ impl Canvas {
         Some(key)=> {return key;},
         None=> {return VirtualKeyCode::Power;}
         }
+    }
+    ///keeps the key pressed in the key event until a new key is pressed
+    #[allow(non_snake_case)]
+    pub fn lockKeyEvent(&mut self){
+         self.key.keep_key = true;
     }
     ///returns the x scroll delta of the mouse
     #[allow(non_snake_case)]
@@ -255,6 +334,7 @@ impl Canvas {
         let a = color.get_a();
         self.fill = true;
         self.fill_color = mapping::map_colors([r, g, b, a]);
+        //println!("{:?}",self.fill_color);
     }
     ///recieves f32 ext size and sets the canvases text_size to that size
     #[allow(non_snake_case)]
@@ -283,12 +363,11 @@ impl Canvas {
     size: (width, height),
     stroke: true,
     color: [0.0, 0.0, 0.0, 1.0],
-    stroke_weight: 8,
+    stroke_weight: 1,
     fill: false,
     fill_color: [1.0, 1.0, 1.0, 1.0],
     background_color: [1.0, 1.0, 1.0, 1.0],
     fps: 60.0,
-    resizeable: false,
     text_size: 18.0,
     text_vec: vec![],
     fill_vec: vec![],
@@ -309,9 +388,16 @@ impl Canvas {
         let mut previous_frame_end;
         let (mut env, mut events_loop) = init(self.size.0, self.size.1);
         self = draw_fn(self);
-        //draw_fn();
+        //println!("{:?}",(self.texture.clone().unwrap().0).len());
         match self.texture.clone(){
             Some((vec1,dim1))=>{
+                /*let mut vec2 = vec![];
+                for u in vec1.iter(){
+                    match u{
+                        Some(x)=>{vec2.push(*x);},
+                        None=>{},
+                    };
+                }*/
                 let vec_tex = vec1.to_vec();
                 let dimensions = dim1;
         let (texture, tex_future) = {
@@ -367,7 +453,7 @@ impl Canvas {
                     if key == VirtualKeyCode::W && modifiers.ctrl{
                         done = true;
                     }
-                    self.key = Key{keycode:Some(key),moder:modifiers};
+                    self.key = Key{keycode:Some(key),moder:modifiers,keep_key:false};
                 },
                     WindowEvent::CursorMoved{
                         position:LogicalPosition{x:posx,y:posy},
@@ -382,7 +468,7 @@ impl Canvas {
                     self.mouse = Mouse{btn:Some(button1),moder:modifiers};
                 },
                     WindowEvent::MouseWheel{
-                            delta: MouseScrollDelta::PixelDelta(pos),//{x:posx,y:posy},
+                            delta: MouseScrollDelta::PixelDelta(pos),
                             modifiers,
                             ..
                 } => {
@@ -443,6 +529,7 @@ impl Canvas {
                         Err(err) => panic!("{:?}", err),
                     };
                 let clear_values = vec![self.background_color.into()];
+                //println!("{:?}",clear_values);
                 let command_buffer:AutoCommandBuffer;
                 if self.text_vec.len()>0{
                         for txt in self.text_vec{
@@ -603,7 +690,9 @@ impl Canvas {
             self.stroke_vec = vec![];
             //draw_fn(self.clone());
             self= draw_fn(self);
+            if self.key.keep_key == false{
             self.key.keycode = Some(VirtualKeyCode::Power);
+            }
             self.mouse.btn = Some(MouseButton::Other(99));
             self.mouse_scroll.delta = (0,0);
             counter1+=1;
@@ -613,9 +702,15 @@ impl Canvas {
 ///recieves the x and y of the top spot and then the width and height of the rectangle you want
 ///built.
 pub fn rect(&mut self,x: u16, y: u16, width: u16, height: u16) {
-    
         let scale = [self.size.0, self.size.1];
-        let t_l = map([x, y], scale);
+        let mut t_l = map([x, y], scale);
+        if x>=self.stroke_weight as u16 && y>=self.stroke_weight as u16{
+            t_l = map([x-self.stroke_weight as u16, y-self.stroke_weight as u16], scale);
+        }else if x>=self.stroke_weight as u16{
+            t_l = map([x-self.stroke_weight as u16, y], scale);
+        }else if y>=self.stroke_weight as u16{
+            t_l = map([x, y-self.stroke_weight as u16], scale);
+        }
         let b_r = map([x + width, y + height], scale);
         let t_r = map([x + width, y], scale);
         let b_l = map([x, y + height], scale);
@@ -1227,14 +1322,68 @@ pub fn text(&mut self,x:u16,y:u16,text:&'static str){
             text: text,
         });
 }
+    ///this function shoould be used inside the draw loop, because it does not load an image, it
+    ///simply displays a loaded image
+pub fn display(&mut self,img:Image){
+        let scale = [self.size.0, self.size.1];
+        let x = 0;
+        let y = 0;
+        //println!("w:{}\nh:{}",img.dimensions.width(),img.dimensions.height());
+        self.fill_vec.push(Vertex {
+            position: map([x,y], scale),
+            color: self.color,
+            tex_coords: map_tex([x/2,y/2], scale),
+        });
+        self.fill_vec.push(Vertex {
+            position: map([x+(img.dimensions.width() as u16),y], scale),
+            color: self.color,
+            tex_coords: map_tex([x/2+(img.dimensions.width() as u16)/2,y/2], scale),
+        });
+        self.fill_vec.push(Vertex {
+            position: map([x+(img.dimensions.width() as u16),y+(img.dimensions.height() as u16)], scale),
+            color: self.color,
+            tex_coords: map_tex([(x+(img.dimensions.width() as u16))/2,(y+(img.dimensions.height() as u16))/2], scale),
+        });
+        self.fill_vec.push(Vertex {
+            position: map([x+(img.dimensions.width() as u16),y+(img.dimensions.height() as u16)], scale),
+            color: self.color,
+            tex_coords: map_tex([(x+(img.dimensions.width() as u16))/2,(y+(img.dimensions.height() as u16))/2], scale),
+        });
+        self.fill_vec.push(Vertex {
+            position: map([x,y], scale),
+            color: self.color,
+            tex_coords: map_tex([x/2,y/2], scale),
+        });
+        self.fill_vec.push(Vertex {
+            position: map([x,y+(img.dimensions.height() as u16)], scale),
+            color: self.color,
+            tex_coords: map_tex([x/2,(y+(img.dimensions.height() as u16))/2], scale),
+        });
+        //TEXTURE = Some((self.image_data,self.dimensions)); 
+        self.texture = Some((img.image_data.clone(),img.dimensions)); 
+    }
+}
 ///takes a path to the image and loads it into an Image struct
 ///should strictly be used outside the draw loop!
 #[allow(non_snake_case)]
 pub fn img(path:&str)->Image{
-        let img = image::open(path).unwrap();
-        img.resize(img.width() , img.height() ,image::imageops::FilterType::Nearest);
-        let image_data = img.raw_pixels();
-        let dimensions = Dimensions::Dim2d { width: img.width(), height: img.height() };
+        let decoder = png::Decoder::new(File::open(path).unwrap());
+        let (info, mut reader) = decoder.read_info().unwrap();
+        //let img = image::open(path).unwrap();
+        //img.resize(img.width() , img.height() ,image::imageops::FilterType::Nearest);
+        //let image_data/*1*/ = img.raw_pixels();
+        let mut image_data = Vec::new();
+        image_data.resize((info.width * info.height * 4) as usize, 0);
+        reader.next_frame(&mut image_data).unwrap();
+        let dimensions = Dimensions::Dim2d { width: info.width, height: info.height };
+        /*let mut cnt =0;
+        let mut image_data:[Option<u8>;100000] = [None;100000];
+        for i in image_data1{
+            image_data[cnt] = Some(i);
+            cnt+=1;
+        }
+        for x in cnt..100000{
+            image_data[x] = None;
+        }*/
         Image{image_data,dimensions}
-}
 }

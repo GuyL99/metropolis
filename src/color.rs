@@ -1,3 +1,6 @@
+use std::ops::Add;
+use std::ops::Sub;
+use std::fmt;
 ///a struct used for the coloring in this create
 #[derive(Copy, Clone, PartialEq, PartialOrd, Eq, Ord)]
 pub struct Color {
@@ -35,5 +38,42 @@ pub fn grayscale(gr: u8) -> Color {
         g: gr, //(gr as f32 *0.59) as u8,
         b: gr, //(gr as f32 *0.11) as u8,
         a: 255,
+    }
+}
+impl fmt::Display for Color{
+    fn fmt(&self,f: &mut fmt::Formatter<'_>)->fmt::Result{
+            write!(f, "({},{},{},{})", self.r, self.g,self.b,self.a)
+    }
+}
+impl fmt::Debug for Color{
+    fn fmt(&self,f: &mut fmt::Formatter<'_>)->fmt::Result{
+            write!(f, "({},{},{},{})", self.r, self.g,self.b,self.a)
+    }
+}
+impl From<(u8,u8,u8)> for Color{
+    fn from(vals:(u8,u8,u8))->Self{
+        Color{r:vals.0,g:vals.1,b:vals.2,a:255}
+    }
+}
+impl From<(u8,u8,u8,u8)> for Color{
+    fn from(vals:(u8,u8,u8,u8))->Self{
+        Color{r:vals.0,g:vals.1,b:vals.2,a:vals.3}
+    }
+}
+impl From<u8> for Color{
+    fn from(vals:u8)->Self{
+        Color{r:vals,g:vals,b:vals,a:255}
+    }
+}
+impl Add<u8> for Color{
+    type Output = Self;
+    fn add(self,adder:u8)->Self{
+        Color{r:self.get_r()+adder,g:self.get_g()+adder,b:self.get_b()+adder,a:self.get_a()}
+    }
+}
+impl Sub<u8> for Color{
+    type Output = Self;
+    fn sub(self,adder:u8)->Self{
+        Color{r:self.get_r()-adder,g:self.get_g()-adder,b:self.get_b()-adder,a:self.get_a()}
     }
 }

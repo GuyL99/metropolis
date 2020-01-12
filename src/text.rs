@@ -229,6 +229,7 @@ impl DrawText {
             .begin_render_pass(self.framebuffers[image_num].clone(), false, vec!(ClearValue::None)).unwrap();
 
         // draw
+        let mut vert1 = vec![];
         for text in &mut self.texts.drain(..) {
             let vertices: Vec<Vertex> = text.glyphs.iter().flat_map(|g| {
                 if let Ok(Some((uv_rect, screen_rect))) = cache.rect_for(0, g) {
@@ -242,7 +243,7 @@ impl DrawText {
                            (screen_rect.max.y as f32 / screen_height as f32 - 0.5) * 2.0
                         )
                     };
-                    println!("rect coords:{:?}\nuv rect coords:{:?}",gl_rect,uv_rect);
+                    //println!("rect coords:{:?}\nuv rect coords:{:?}",gl_rect,uv_rect);
                     vec!(
                         Vertex {
                             position:     [gl_rect.min.x, gl_rect.max.y],
@@ -281,10 +282,13 @@ impl DrawText {
                     vec!().into_iter()
                 }
             }).collect();
-
-            let vertex_buffer = CpuAccessibleBuffer::from_iter(self.device.clone(), BufferUsage::all(), vertices.into_iter()).unwrap();
-            command_buffer = command_buffer.draw(self.pipeline.clone(), &DynamicState::none(), vertex_buffer.clone(), set.clone(), ()).unwrap();
+            for i in vertices{
+                vert1.push(i);
+            }
         }
+
+            let vertex_buffer = CpuAccessibleBuffer::from_iter(self.device.clone(), BufferUsage::all(), vert1.into_iter()).unwrap();
+            command_buffer = command_buffer.draw(self.pipeline.clone(), &DynamicState::none(), vertex_buffer.clone(), set.clone(), ()).unwrap();
 
         command_buffer.end_render_pass().unwrap()
     }

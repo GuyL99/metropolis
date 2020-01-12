@@ -18,8 +18,10 @@ fn main(){
 		keyCode::Key8=>{str_from_count = "8";},
 		keyCode::Key9=>{str_from_count = "9";},
 		_=>{},
+
 }
-        println!("{:?}",canvas.mouseX());
+			canvas.lockKeyEvent();
+        //println!("{:?}",canvas.mouseX());
 		canvas.text(300,300,str_from_count);
         canvas
 	};

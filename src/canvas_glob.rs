@@ -22,6 +22,7 @@ use vulkano::format::Format;
 pub struct Key{
     pub keycode:Option<VirtualKeyCode>,
     pub moder:ModifiersState,
+    pub keep_key: bool,
 }
 impl Key{
     pub fn get_mod(self)->ModifiersState{
@@ -130,7 +131,7 @@ impl CanvasGlob{
                     if key == VirtualKeyCode::W && modifiers.ctrl{
                         done = true;
                     }
-                    self.key = Key{keycode:Some(key),moder:modifiers};
+                    self.key = Key{keycode:Some(key),moder:modifiers,keep_key:false};
                 },
                     WindowEvent::CursorMoved{
                         position:LogicalPosition{x:posx,y:posy},
@@ -398,7 +399,9 @@ impl CanvasGlob{
             }
             zero_out();
             draw_fn();
+            if self.key.keep_key == false{
             self.key.keycode = Some(VirtualKeyCode::Power);
+            }
             self.mouse.btn = Some(MouseButton::Other(99));
             counter1+=1;
         }
@@ -441,7 +444,7 @@ pub static mut CANVAS: CanvasGlob = CanvasGlob {
     fps: 30.0,
     resizeable: false,
     text_size: 18.0,
-    key:Key{keycode:None,moder:ModifiersState{shift:false,ctrl:false,alt:false,logo:false},},
+    key:Key{keycode:None,moder:ModifiersState{shift:false,ctrl:false,alt:false,logo:false},keep_key:false},
     cursor_pos:(0,0),
     mouse:Mouse{btn:None,moder:ModifiersState{shift:false,ctrl:false,alt:false,logo:false},},
     mouse_scroll:MouseScroll{delta:(0,0),moder:ModifiersState{shift:false,ctrl:false,alt:false,logo:false},},

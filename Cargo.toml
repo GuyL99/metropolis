@@ -1,6 +1,6 @@
 [package]
 name = "metropolis"
-version = "0.7.0"
+version = "0.8.0"
 authors = ["guy <guy123levinger@gmail.com>"]
 edition = "2018"
 description = "A high level easy to use graphics renderer"
@@ -9,7 +9,7 @@ readme = "README.md"
 categories = ["games","graphics","gui"]
 keywords = ["cli", "api","gui","gamedev","graphics"]
 license = "MIT"
-documentation = "https://docs.rs/metropolis/0.7.0/metropolis"
+documentation = "https://docs.rs/metropolis/0.8.0/metropolis"
 gitlab = { repository = "https://gitlab.com/GuyL99/graphics-renderer", branch = "master" }
 
 
@@ -21,7 +21,7 @@ vulkano-shaders = "0.16.0"
 vulkano-win = "0.16.0"
 winit = "0.19.5"
 rusttype = { version = "0.7", features = ["gpu_cache"] }
-image = "0.22.3"
+png = "0.15"
 
 [profile.dev]
 opt-level = 0

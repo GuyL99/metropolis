@@ -80,16 +80,20 @@ use canvas_glob::*;
 ///a module used for coloring in this crate, will be adding more functions and easier set in the
 ///future.
 pub mod color;
+//pub mod page;
 ///a module to provide some mathematical help functions from the crate.
 ///Will be much expanded upon in the near future.
+pub mod vector;
 pub mod math;
+//pub mod elements;
 use color::*;
 use math::{bezier_points, catmull_rom_chain};
 pub static mut FPS:f32 = 0f32;
 pub static mut HEIGHT:u16 = 0u16;
 pub static mut WIDTH:u16 = 0u16;
 use vulkano::image::Dimensions;
-use image::*;
+use png;
+use std::fs::File;
 pub use winit::VirtualKeyCode as keyCode;
 pub use winit::MouseButton;
 use winit::ModifiersState;
@@ -133,6 +137,13 @@ fn add_to_stroke(pusher: Vertex) {
                 STROKE_VERTECIES = Some(vec2);
             }
         };
+    }
+}
+///keeps the key pressed in the key event until a new key is pressed
+#[allow(non_snake_case)]
+pub fn lockKeyEvent(){
+    unsafe{
+    CANVAS.key.keep_key = true;
     }
 }
 ///returns the x scroll delta of the mouse
@@ -836,7 +847,7 @@ pub fn bezierCurve(ptvec: Vec<[i64; 2]>) {
 ///loopes over the array and uses curveVertex to create a catmull rom chain curve
 pub fn curve(ptvec: Vec<[i64; 2]>) {
     for i in 0..(ptvec.len() - 3) {
-        curveVertex(
+        bezierCurveVertex(
             ptvec[i][0],
             ptvec[i][1],
             ptvec[i + 1][0],
@@ -906,10 +917,12 @@ pub struct Image{
 ///should strictly be used outside the draw loop! 
 #[allow(non_snake_case)]
 pub fn img(path:&str)->Image{
-        let img = image::open(path).unwrap();
-        img.resize(img.width() , img.height() ,image::imageops::FilterType::Nearest);
-        let image_data = img.raw_pixels(); 
-        let dimensions = Dimensions::Dim2d { width: img.width(), height: img.height() };
+        let decoder = png::Decoder::new(File::open(path).unwrap());
+        let (info, mut reader) = decoder.read_info().unwrap();
+        let mut image_data = Vec::new();
+        image_data.resize((info.width * info.height * 4) as usize, 0);
+        reader.next_frame(&mut image_data).unwrap();
+        let dimensions = Dimensions::Dim2d { width: info.width, height: info.height };
         Image{image_data,dimensions}
 }
 impl Image{
@@ -955,7 +968,7 @@ pub fn display(self,x:u16,y:u16){
             //tex_coords: map_tex(map([x,(y+(self.dimensions.height() as u16))], scale),imsize),
             tex_coords: map([x,(y+(self.dimensions.height() as u16))], scale),
         });
-        println!("pos:{:?}\ntex:{:?}",FILL_VERTECIES.clone().unwrap()[0].position,FILL_VERTECIES.clone().unwrap()[0].tex_coords);
+        //println!("pos:{:?}\ntex:{:?}",FILL_VERTECIES.clone().unwrap()[0].position,FILL_VERTECIES.clone().unwrap()[0].tex_coords);
         TEXTURE = Some((self.image_data,self.dimensions)); 
     }
 }

@@ -11,7 +11,7 @@ layout(location = 1) out vec2 _tex_coords;
 void main() {
     gl_Position = vec4(position, 0.0, 1.0);
     _color = color;
-    _tex_coords = position+vec2(tex_coords*2);//position+ vec2(tex_coords*2);
+    _tex_coords = tex_coords;//position+vec2(tex_coords*2);//position+ vec2(tex_coords*2);
 }"
     }
 }
@@ -297,3 +297,41 @@ void main(){
 }"
     }
 }
+pub mod vstext {
+    vulkano_shaders::shader!{
+        ty: "vertex",
+        src:"
+#version 450
+
+layout(location = 0) in vec2 position;
+layout(location = 1) in vec2 tex_position;
+layout(location = 2) in vec4 color;
+layout(location = 0) out vec2 v_tex_position;
+layout(location = 1) out vec4 v_color;
+
+void main() {
+    gl_Position = vec4(position, 0.0, 1.0);
+    v_tex_position = tex_position;
+    v_color = color;
+}"
+    }
+}
+
+pub mod fstext {
+    vulkano_shaders::shader!{
+        ty: "fragment",
+        src:"
+#version 450
+
+layout(location = 0) in vec2 v_tex_position;
+layout(location = 1) in vec4 v_color;
+layout(location = 0) out vec4 f_color;
+
+layout(set = 0, binding = 0) uniform sampler2D tex;
+
+void main() {
+    f_color = v_color * texture(tex, v_tex_position)[0];
+}"
+    }
+}
+

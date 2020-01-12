@@ -19,6 +19,7 @@ fn main() {
 		keyCode::Key9=>{str_from_count = "9";},
 		_=>{},
 }
+		lockKeyEvent();
 		text(300,300,str_from_count);
 	};
 	show(draw);
