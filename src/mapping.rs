@@ -36,11 +36,11 @@ pub fn map_tex(point: [f32; 2], scale: [u16; 2]) -> [f32; 2] {
     ];
     new_point
 }*/
-pub fn map_tex(point: [u16; 2], scale: [u16; 2]) -> [f32; 2] {
+pub fn map_tex(point: [f32; 2], scale: [u16; 2]) -> [f32; 2] {
     //where T:Add+Sub+Div+Mul+Sub<T, Output =T>+Add<T, Output =T>+Div<T, Output = T>+Mul<T, Output = T>+Copy+Clone+PartialEq{
     let new_point: [f32; 2] = [
-        (point[0] as f32 / scale[0] as f32),
-        (point[1] as f32 / scale[1] as f32),
+        (point[0]/ scale[0] as f32),
+        (point[1]/ scale[1] as f32),
     ];
-    [(new_point[0] * 2.0) - 1.0, (new_point[1] * 2.0) - 1.0]
+    [(new_point[0]), (new_point[1])]
 }

@@ -1,5 +1,5 @@
 # Metropolis
-![crates.io](https://img.shields.io/crates/v/metropolis.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![doc.rs](https://docs.rs/metropolis/badge.svg?version=0.8.0)
+![crates.io](https://img.shields.io/crates/v/metropolis.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![doc.rs](https://docs.rs/metropolis/badge.svg?version=0.9.0)
 ## What is it and what is it for?
 
 Metropolis is an easy to use high level graphics renderer written in rust, utilizing [vulkano](https://crates.io/crates/vulkano) and [winit](https://crates.io/crates/winit),
@@ -36,7 +36,7 @@ Later I hope to develop a game engine using it but first I'll finish the rendere
 Add the following to your Cargo.toml:
 ```rust
 [dependencies]
-metropolis = "0.8.0"
+metropolis = "0.9.0"
 ```
 First use import the crate:
 ```rust
@@ -80,9 +80,11 @@ Finally use the show() function to run the whole thing:
 If you noticed - this program displays gravity working on an ellipse
 
 ## release notes:
-### long time since the last version a few things added and changed:
-I improved the text fps by a bit, added a Vector struct that allowes for some linear algebra related calculations, added from trait,display trait, and debug trait to color. </br>changed image functions: now only takes png images, and displays the whole image, I still have problems with it that I'm fixing.</br>changed the curve to work with bezier by default(beacuse of problems with te catmull rom chain)
+### a patch version to fix the image module:
+I finally fixed the image module and now it could be used to place a png image wherever you want in the page in the same size as it was(the resize is on you...)
 ### former versions release notes:
+#### 0.8.0
+I improved the text fps by a bit, added a Vector struct that allowes for some linear algebra related calculations, added from trait,display trait, and debug trait to color. </br>changed image functions: now only takes png images, and displays the whole image, I still have problems with it that I'm fixing.</br>changed the curve to work with bezier by default(beacuse of problems with te catmull rom chain)
 #### 0.7.0
 added the possiblity to use keyboard events see the examples:key_event and key_event_glob. I added mouse position getters and mouse scroll delta getters.
 #### 0.6.0
@@ -115,12 +117,11 @@ there is a bezier curve, 2 function - one for vertex(4 x's and y's) and one for 
 ### If you want to checkout the crate further that you should take a look in the [examples](https://github.com/GuyL99/metropolis/tree/master/examples) folder.
 ## Currently being developed:
 1)dynamic line width.</br>
-2)improve image module</br>
-3)page elements and multicanvas module</br>
-4)making the static mut into a lazy_static(in development).</br>
-5)3D.</br>
-6)HTML type file parsing into elements.</br>
-7)anithyng else from community feedback!</br>
+2)page elements and multicanvas module</br>
+3)making the static mut into a lazy_static(in development).</br>
+4)3D.</br>
+5)HTML type file parsing into elements.</br>
+6)anithyng else from community feedback!</br>
 
 # License 
 This crate is primarily distributed under the terms of the MIT license

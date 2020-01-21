@@ -9,10 +9,10 @@ fn main() {
     let mut g = 100;
     let mut b = 100;
     //let image = img("/home/guyl/Desktop/saitama.png");
-    //let image = img("/home/guyl/Desktop/rust.png");
+    let image = img("/home/guyl/Desktop/rust.png");
     let draw = move |mut canvas:Canvas|->Canvas{
-        //canvas.display(image.clone());
-        println!("{}",Color::from((r,g,b)));
+        canvas.display(image.clone(),400,400);
+        /*println!("{}",Color::from((r,g,b)));
         canvas.background(rgb(r,g,b));
         if cnt%50 == 0{
             posy+=100;
@@ -36,7 +36,7 @@ fn main() {
         canvas.fill(Color::from((0,0,0)));
         canvas.rect(0,0,20,20);
         canvas.fill(Color::from((100,160,200)));
-        canvas.rect(30,30,20,20);
+        canvas.rect(30,30,20,20);*/
         canvas
 	};
 	canv.show(draw);

@@ -355,7 +355,7 @@ impl Canvas {
     }
     ///returns the width of the canvas
     pub fn width(self)->u16{
-        self.size.1 
+        self.size.0 
     }
     ///creates a new canvas surface for rendering
     pub fn new(width:u16,height:u16)->Canvas{
@@ -1266,7 +1266,7 @@ pub fn bezierCurve(&mut self,ptvec: Vec<[i64; 2]>) {
 ///loopes over the array and uses curveVertex to create a catmull rom chain curve
 pub fn curve(&mut self,ptvec: Vec<[i64; 2]>) {
     for i in 0..(ptvec.len() - 3) {
-        self.curveVertex(
+        self.bezierCurveVertex(
             ptvec[i][0],
             ptvec[i][1],
             ptvec[i + 1][0],
@@ -1324,40 +1324,49 @@ pub fn text(&mut self,x:u16,y:u16,text:&'static str){
 }
     ///this function shoould be used inside the draw loop, because it does not load an image, it
     ///simply displays a loaded image
-pub fn display(&mut self,img:Image){
+pub fn display(&mut self,img:Image,x11:u16,y11:u16){
         let scale = [self.size.0, self.size.1];
-        let x = 0;
-        let y = 0;
-        //println!("w:{}\nh:{}",img.dimensions.width(),img.dimensions.height());
+        let x = x11;
+        let x1 = 0f32;//(x11 as u32 % img.dimensions.width()) as f32/2.0;
+        let y = y11;
+        let y1 = 0f32;//(y11 as u32 % img.dimensions.height()) as f32/2.0;
+        //let width1 = self.clone().width() as u32;
+        //let width_img = img.dimensions.width();
+        let width_img = self.clone().width();
+        //let height1 = self.clone().height() as u32;
+        //let height_img = img.dimensions.height();
+        let height_img = self.clone().height();
+        //let diver_w = (width1 as f32/width_img as f32) as f32;
+        //let diver_h = (height1 as f32/height_img as f32) as f32;
         self.fill_vec.push(Vertex {
             position: map([x,y], scale),
             color: self.color,
-            tex_coords: map_tex([x/2,y/2], scale),
+            tex_coords:map_tex([x1,y1], scale),
         });
         self.fill_vec.push(Vertex {
             position: map([x+(img.dimensions.width() as u16),y], scale),
             color: self.color,
-            tex_coords: map_tex([x/2+(img.dimensions.width() as u16)/2,y/2], scale),
+            tex_coords: map_tex([x1+width_img as f32,y1], scale),
         });
         self.fill_vec.push(Vertex {
             position: map([x+(img.dimensions.width() as u16),y+(img.dimensions.height() as u16)], scale),
             color: self.color,
-            tex_coords: map_tex([(x+(img.dimensions.width() as u16))/2,(y+(img.dimensions.height() as u16))/2], scale),
+            tex_coords: map_tex([x1+width_img as f32,y1+height_img as f32], scale),
         });
         self.fill_vec.push(Vertex {
             position: map([x+(img.dimensions.width() as u16),y+(img.dimensions.height() as u16)], scale),
             color: self.color,
-            tex_coords: map_tex([(x+(img.dimensions.width() as u16))/2,(y+(img.dimensions.height() as u16))/2], scale),
+            tex_coords: map_tex([x1+width_img as f32,y1+height_img as f32], scale),
         });
         self.fill_vec.push(Vertex {
             position: map([x,y], scale),
             color: self.color,
-            tex_coords: map_tex([x/2,y/2], scale),
+            tex_coords: map_tex([x1,y1], scale),
         });
         self.fill_vec.push(Vertex {
             position: map([x,y+(img.dimensions.height() as u16)], scale),
             color: self.color,
-            tex_coords: map_tex([x/2,(y+(img.dimensions.height() as u16))/2], scale),
+            tex_coords: map_tex([x1,y1+height_img as f32], scale),
         });
         //TEXTURE = Some((self.image_data,self.dimensions)); 
         self.texture = Some((img.image_data.clone(),img.dimensions)); 
