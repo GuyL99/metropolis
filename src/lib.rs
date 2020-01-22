@@ -906,8 +906,7 @@ pub fn text(x:u16,y:u16,text:&'static str){
         });
     }
 }
-///This struct is meant for loading and saving the image once and not every frame, it improves
-///framerate in aout 12 fps.
+///This struct is meant for loading and saving the image once and not every frame
 #[derive(Clone)]
 pub struct Image{
     pub image_data:Vec<u8>,

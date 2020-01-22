@@ -103,6 +103,7 @@ pub struct Canvas {
     pub fps: f32,
     text_size: f32,
     fill_vec: Vec<Vertex>,     
+    tex_vec: Vec<Vertex>,     
     text_vec: Vec<Stext>,   
     stroke_vec: Vec<Vertex>,     
     texture:Option<(Vec<u8>,Dimensions)>,
@@ -371,6 +372,7 @@ impl Canvas {
     text_size: 18.0,
     text_vec: vec![],
     fill_vec: vec![],
+    tex_vec: vec![],
     stroke_vec: vec![],
     texture:None,
     key:Key::new(),
@@ -494,6 +496,12 @@ impl Canvas {
                     self.fill_vec.clone().iter().cloned(),
                 )
                 .unwrap();
+                let tex_vertex_buffer = CpuAccessibleBuffer::from_iter(
+                    env.device.clone(),
+                    BufferUsage::all(),
+                    self.tex_vec.clone().iter().cloned(),
+                )
+                .unwrap();
                 let window = env.surface.window();
                 if recreate_swapchain {
                     let dimensions = {
@@ -547,8 +555,16 @@ impl Canvas {
                 .draw(
                     env.tex_pipeline.clone(),
                     &env.dynamic_state,
-                    vec![fill_vertex_buffer.clone()],
+                    vec![tex_vertex_buffer.clone()],
                     set.clone(),
+                    (),
+                )
+                .unwrap()
+                .draw(
+                    env.fill_pipeline.clone(),
+                    &env.dynamic_state,
+                    vec![fill_vertex_buffer.clone()],
+                    (),
                     (),
                 )
                 .unwrap()
@@ -610,8 +626,16 @@ impl Canvas {
                 .draw(
                     env.tex_pipeline.clone(),
                     &env.dynamic_state,
-                    vec![fill_vertex_buffer.clone()],
+                    vec![tex_vertex_buffer.clone()],
                     set.clone(),
+                    (),
+                )
+                .unwrap()
+                .draw(
+                    env.fill_pipeline.clone(),
+                    &env.dynamic_state,
+                    vec![fill_vertex_buffer.clone()],
+                    (),
                     (),
                 )
                 .unwrap()
@@ -687,6 +711,7 @@ impl Canvas {
             }
             self.text_vec = vec![];
             self.fill_vec = vec![];
+            self.tex_vec = vec![];
             self.stroke_vec = vec![];
             //draw_fn(self.clone());
             self= draw_fn(self);
@@ -1338,32 +1363,32 @@ pub fn display(&mut self,img:Image,x11:u16,y11:u16){
         let height_img = self.clone().height();
         //let diver_w = (width1 as f32/width_img as f32) as f32;
         //let diver_h = (height1 as f32/height_img as f32) as f32;
-        self.fill_vec.push(Vertex {
+        self.tex_vec.push(Vertex {
             position: map([x,y], scale),
             color: self.color,
             tex_coords:map_tex([x1,y1], scale),
         });
-        self.fill_vec.push(Vertex {
+        self.tex_vec.push(Vertex {
             position: map([x+(img.dimensions.width() as u16),y], scale),
             color: self.color,
             tex_coords: map_tex([x1+width_img as f32,y1], scale),
         });
-        self.fill_vec.push(Vertex {
+        self.tex_vec.push(Vertex {
             position: map([x+(img.dimensions.width() as u16),y+(img.dimensions.height() as u16)], scale),
             color: self.color,
             tex_coords: map_tex([x1+width_img as f32,y1+height_img as f32], scale),
         });
-        self.fill_vec.push(Vertex {
+        self.tex_vec.push(Vertex {
             position: map([x+(img.dimensions.width() as u16),y+(img.dimensions.height() as u16)], scale),
             color: self.color,
             tex_coords: map_tex([x1+width_img as f32,y1+height_img as f32], scale),
         });
-        self.fill_vec.push(Vertex {
+        self.tex_vec.push(Vertex {
             position: map([x,y], scale),
             color: self.color,
             tex_coords: map_tex([x1,y1], scale),
         });
-        self.fill_vec.push(Vertex {
+        self.tex_vec.push(Vertex {
             position: map([x,y+(img.dimensions.height() as u16)], scale),
             color: self.color,
             tex_coords: map_tex([x1,y1+height_img as f32], scale),

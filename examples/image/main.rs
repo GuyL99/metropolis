@@ -11,7 +11,7 @@ fn main() {
     //let image = img("/home/guyl/Desktop/saitama.png");
     let image = img("/home/guyl/Desktop/rust.png");
     let draw = move |mut canvas:Canvas|->Canvas{
-        canvas.display(image.clone(),400,400);
+        canvas.display(image.clone(),canvas.mouseX(),canvas.mouseY());
         /*println!("{}",Color::from((r,g,b)));
         canvas.background(rgb(r,g,b));
         if cnt%50 == 0{
@@ -37,6 +37,9 @@ fn main() {
         canvas.rect(0,0,20,20);
         canvas.fill(Color::from((100,160,200)));
         canvas.rect(30,30,20,20);*/
+        canvas.fill(rgb(255,0,100));
+        canvas.rect(200,200,100,150);
+        println!("{}",canvas.fps);
         canvas
 	};
 	canv.show(draw);
