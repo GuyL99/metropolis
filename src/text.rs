@@ -78,10 +78,11 @@ pub struct DrawText {
     pipeline:           Arc<GraphicsPipeline<SingleBufferDefinition<Vertex>, Box<dyn PipelineLayoutAbstract + Send + Sync>, Arc<dyn RenderPassAbstract + Send + Sync>>>,
     framebuffers:       Vec<Arc<dyn FramebufferAbstract + Send + Sync>>,
     texts:              Vec<TextData>,
+    buffer:             Arc<CpuAccessibleBuffer<[u8]>>,
 }
 
-const CACHE_WIDTH: usize = 1000;
-const CACHE_HEIGHT: usize = 1000;
+const CACHE_WIDTH: usize = 234;
+const CACHE_HEIGHT: usize = 234;
 
 impl DrawText {
     pub fn new<W>(device: Arc<Device>, queue: Arc<Queue>, swapchain: Arc<Swapchain<W>>, images: &[Arc<SwapchainImage<W>>]) -> DrawText where W: Send + Sync + 'static {
@@ -135,7 +136,12 @@ impl DrawText {
             .build(device.clone())
             .unwrap()
         );
-
+        let buffer = CpuAccessibleBuffer::<[u8]>::from_iter(
+            device.clone(),
+            BufferUsage::all(),
+            //cache_pixel_buffer.iter().cloned()
+            vec![].iter().cloned()
+        ).unwrap();
         DrawText {
             device: device.clone(),
             queue,
@@ -145,10 +151,12 @@ impl DrawText {
             pipeline,
             framebuffers,
             texts: vec!(),
+            buffer,
         }
     }
 
     pub fn queue_text(&mut self, x: f32, y: f32, size: f32, color: [f32; 4], text: &str) {
+        let cache_pixel_buffer = &mut self.cache_pixel_buffer;
         let glyphs: Vec<PositionedGlyph> = self.font.layout(text, Scale::uniform(size), point(x, y)).map(|x| x.standalone()).collect();
         for glyph in &glyphs {
             self.cache.queue_glyph(0, glyph.clone());
@@ -157,16 +165,7 @@ impl DrawText {
             glyphs: glyphs.clone(),
             color:  color,
         });
-    }
-
-    pub fn draw_text(&mut self, command_buffer: AutoCommandBufferBuilder, image_num: usize) -> AutoCommandBufferBuilder {
-        let screen_width  = self.framebuffers[image_num].dimensions()[0];
-        let screen_height = self.framebuffers[image_num].dimensions()[1];
-        let cache_pixel_buffer = &mut self.cache_pixel_buffer;
-        let cache = &mut self.cache;
-
-        // update texture cache
-        cache.cache_queued(
+        self.cache.cache_queued(
             |rect, src_data| {
                 let width = (rect.max.x - rect.min.x) as usize;
                 let height = (rect.max.y - rect.min.y) as usize;
@@ -183,13 +182,46 @@ impl DrawText {
                 }
             }
         ).unwrap();
-
         let buffer = CpuAccessibleBuffer::<[u8]>::from_iter(
             self.device.clone(),
             BufferUsage::all(),
-            cache_pixel_buffer.iter().cloned()
+            self.cache_pixel_buffer.iter().cloned()
         ).unwrap();
+        self.buffer = buffer;
+    }
 
+    pub fn draw_text(&mut self, command_buffer: AutoCommandBufferBuilder, image_num: usize) -> AutoCommandBufferBuilder {
+        let screen_width  = self.framebuffers[image_num].dimensions()[0];
+        let screen_height = self.framebuffers[image_num].dimensions()[1];
+        //let cache_pixel_buffer = &mut self.cache_pixel_buffer;
+        let cache = &mut self.cache;
+
+        // update texture cache
+        /*cache.cache_queued(
+            |rect, src_data| {
+                let width = (rect.max.x - rect.min.x) as usize;
+                let height = (rect.max.y - rect.min.y) as usize;
+                let mut dst_index = rect.min.y as usize * CACHE_WIDTH + rect.min.x as usize;
+                let mut src_index = 0;
+
+                for _ in 0..height {
+                    let dst_slice = &mut cache_pixel_buffer[dst_index..dst_index+width];
+                    let src_slice = &src_data[src_index..src_index+width];
+                    dst_slice.copy_from_slice(src_slice);
+
+                    dst_index += CACHE_WIDTH;
+                    src_index += width;
+                }
+            }
+        ).unwrap();*/
+        //bad FPS start
+        /*let buffer = CpuAccessibleBuffer::<[u8]>::from_iter(
+            self.device.clone(),
+            BufferUsage::all(),
+            cache_pixel_buffer.iter().cloned()
+        ).unwrap();*/
+        //let buffer = self.buffer;
+        // bad FPS end
         let (cache_texture, cache_texture_write) = ImmutableImage::uninitialized(
             self.device.clone(),
             Dimensions::Dim2d { width: CACHE_WIDTH as u32, height: CACHE_HEIGHT as u32 },
@@ -223,7 +255,7 @@ impl DrawText {
 
         let mut command_buffer = command_buffer
             .copy_buffer_to_image(
-                buffer.clone(),
+                self.buffer.clone(),
                 cache_texture_write,
             ).unwrap()
             .begin_render_pass(self.framebuffers[image_num].clone(), false, vec!(ClearValue::None)).unwrap();
@@ -243,7 +275,6 @@ impl DrawText {
                            (screen_rect.max.y as f32 / screen_height as f32 - 0.5) * 2.0
                         )
                     };
-                    //println!("rect coords:{:?}\nuv rect coords:{:?}",gl_rect,uv_rect);
                     vec!(
                         Vertex {
                             position:     [gl_rect.min.x, gl_rect.max.y],

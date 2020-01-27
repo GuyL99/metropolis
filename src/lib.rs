@@ -85,7 +85,7 @@ pub mod color;
 ///Will be much expanded upon in the near future.
 pub mod vector;
 pub mod math;
-//pub mod elements;
+pub mod elements;
 use color::*;
 use math::{bezier_points, catmull_rom_chain};
 pub static mut FPS:f32 = 0f32;

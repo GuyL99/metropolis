@@ -31,8 +31,6 @@ pub struct Preper {
     pub framebuffers: Vec<Arc<dyn FramebufferAbstract + Send + Sync>>,
     pub recreate_swapchain: bool,
     pub previous_frame_end: Option<Box<dyn GpuFuture>>,
-//    pub tex_future:CommandBufferExecFuture<NowFuture, AutoCommandBuffer>,
-  //  pub texture:Arc<ImmutableImage<Format>>
 }
 pub fn init(w: u16, h: u16) -> (Preper, EventsLoop) {
     let instance = {

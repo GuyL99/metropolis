@@ -1,5 +1,5 @@
 # Metropolis
-![crates.io](https://img.shields.io/crates/v/metropolis.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![doc.rs](https://docs.rs/metropolis/badge.svg?version=0.9.0)
+![crates.io](https://img.shields.io/crates/v/metropolis.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![doc.rs](https://docs.rs/metropolis/badge.svg?version=0.9.1)
 ## What is it and what is it for?
 
 Metropolis is an easy to use high level graphics renderer written in rust, utilizing [vulkano](https://crates.io/crates/vulkano) and [winit](https://crates.io/crates/winit),
@@ -36,7 +36,7 @@ Later I hope to develop a game engine using it but first I'll finish the rendere
 Add the following to your Cargo.toml:
 ```rust
 [dependencies]
-metropolis = "0.9.0"
+metropolis = "0.9.1"
 ```
 First use import the crate:
 ```rust
@@ -80,9 +80,11 @@ Finally use the show() function to run the whole thing:
 If you noticed - this program displays gravity working on an ellipse
 
 ## release notes:
-### a patch version to fix the image module:
-I finally fixed the image module and now it could be used to place a png image wherever you want in the page in the same size as it was(the resize is on you...)
+### a patch version to fix the text module laggines:
+now the text module functions ok and on par with the rest of the crates FPS, the text can be between size 1 and 128.
 ### former versions release notes:
+#### 0.8.1
+I finally fixed the image module and now it could be used to place a png image wherever you want in the page in the same size as it was(the resize is on you...)
 #### 0.8.0
 I improved the text fps by a bit, added a Vector struct that allowes for some linear algebra related calculations, added from trait,display trait, and debug trait to color. </br>changed image functions: now only takes png images, and displays the whole image, I still have problems with it that I'm fixing.</br>changed the curve to work with bezier by default(beacuse of problems with te catmull rom chain)
 #### 0.7.0

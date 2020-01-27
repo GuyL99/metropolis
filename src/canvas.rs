@@ -23,7 +23,7 @@ use vulkano::format::Format;
 use crate::color::Color;
 use crate::mapping;
 use crate::mapping::*;
-//use crate::elements::*;
+use crate::elements::*;
 use png;
 use std::fs::File;
 use crate::math::{bezier_points, catmull_rom_chain};
@@ -102,7 +102,7 @@ pub struct Canvas {
     background_color: [f32; 4],
     pub fps: f32,
     text_size: f32,
-    fill_vec: Vec<Vertex>,     
+    pub fill_vec: Vec<Vertex>,     
     tex_vec: Vec<Vertex>,     
     text_vec: Vec<Stext>,   
     stroke_vec: Vec<Vertex>,     
@@ -225,21 +225,24 @@ impl Key{
         self.moder
     }
 }
+///creates a defultary button
+pub fn button(x:u16,y:u16)->Button{
+    Button::new(x,y)
+}
 impl Canvas {
     ///returns the current key that is pressed on the mouse.
     #[allow(non_snake_case)]
-    pub fn mouseClick(&mut self)->MouseButton{
+    pub fn mouseClick(&self)->MouseButton{
         match self.mouse.btn{
         Some(btn)=> {return btn;},
         None=> {return MouseButton::Other(99);}
         }
     }
-    /*
-    ///creates a defultary button
-    pub fn button(self,x:u16,y:u16)->Button{
-        Button::new(self,x,y)
-        
-    }*/
+    ///attaches a PageElement implementor to the canvas
+    pub fn attach<P>(&mut self,element:P)
+        where P:PageElement {
+        element.draw(self);
+    }
     ///returns the current key that is pressed.
     #[allow(non_snake_case)]
     pub fn keyPressed(&mut self)->VirtualKeyCode{
@@ -1393,7 +1396,6 @@ pub fn display(&mut self,img:Image,x11:u16,y11:u16){
             color: self.color,
             tex_coords: map_tex([x1,y1+height_img as f32], scale),
         });
-        //TEXTURE = Some((self.image_data,self.dimensions)); 
         self.texture = Some((img.image_data.clone(),img.dimensions)); 
     }
 }

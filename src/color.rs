@@ -74,6 +74,18 @@ impl Add<u8> for Color{
 impl Sub<u8> for Color{
     type Output = Self;
     fn sub(self,adder:u8)->Self{
-        Color{r:self.get_r()-adder,g:self.get_g()-adder,b:self.get_b()-adder,a:self.get_a()}
+        let mut r:i16 = self.get_r() as i16 -adder as i16;
+        let mut g:i16 = self.get_g() as i16 -adder as i16;
+        let mut b:i16 = self.get_b() as i16 -adder as i16;
+        if r<0{
+            r=0;
+        }
+        if g<0{
+            g=0;
+        }
+        if b<0{
+            b=0;
+        }
+        Color{r:r as u8,g: g as u8,b: b as u8,a:self.get_a()}
     }
 }
