@@ -1,5 +1,6 @@
 use crate::setup::*;
 use crate::vertex::*;
+use crate::fonts::*;
 use std::sync::Arc;
 use vulkano::buffer::{BufferUsage, CpuAccessibleBuffer};
 use vulkano::command_buffer::{AutoCommandBufferBuilder,AutoCommandBuffer};
@@ -63,6 +64,7 @@ pub struct CanvasGlob {
     pub cursor_pos:(u16,u16),
     pub mouse:Mouse,
     pub mouse_scroll:MouseScroll,
+    pub font:Fonts,
 }
 impl CanvasGlob{
     pub fn show<F>(&mut self, mut draw_fn:F)
@@ -99,7 +101,7 @@ impl CanvasGlob{
             }
         }
         }
-        let mut text = DrawText::new(env.device.clone(), env.queue.clone(), env.swapchain.clone(), &env.images);
+        let mut text = DrawText::new(env.device.clone(), env.queue.clone(), env.swapchain.clone(), &env.images,self.font);
         let mut counter1 = 0;
         let start = Instant::now();
         let mut end;
@@ -209,7 +211,7 @@ impl CanvasGlob{
                         env.render_pass.clone(),
                         &mut env.dynamic_state,
                     );
-                    text = DrawText::new(env.device.clone(), env.queue.clone(), env.swapchain.clone(), &new_images);
+                    text = DrawText::new(env.device.clone(), env.queue.clone(), env.swapchain.clone(), &new_images,self.font);
                     recreate_swapchain = false;
                 }
                 let (image_num, acquire_future) =
@@ -448,6 +450,7 @@ pub static mut CANVAS: CanvasGlob = CanvasGlob {
     cursor_pos:(0,0),
     mouse:Mouse{btn:None,moder:ModifiersState{shift:false,ctrl:false,alt:false,logo:false},},
     mouse_scroll:MouseScroll{delta:(0,0),moder:ModifiersState{shift:false,ctrl:false,alt:false,logo:false},},
+    font:Fonts::DejaVuSans,
 
 };
 pub static mut FILL_VERTECIES: Option<Vec<Vertex>> = None;

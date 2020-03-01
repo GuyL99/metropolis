@@ -1,4 +1,5 @@
 use rusttype::{Font, PositionedGlyph, Scale, Rect, point};
+use crate::fonts::*;
 use rusttype::gpu_cache::Cache;
 
 use vulkano::buffer::{CpuAccessibleBuffer, BufferUsage};
@@ -15,7 +16,6 @@ use vulkano::pipeline::GraphicsPipeline;
 use vulkano::sampler::{Sampler, Filter, MipmapMode, SamplerAddressMode};
 use vulkano::swapchain::Swapchain;
 
-use std::iter;
 use std::sync::Arc;
 
 #[derive(Default, Debug, Clone)]
@@ -69,6 +69,34 @@ struct TextData {
     color:  [f32; 4],
 }
 
+fn window_size_dependent_setup<W>(
+    images: &[Arc<SwapchainImage<W>>],
+    render_pass: Arc<dyn RenderPassAbstract + Send + Sync>,
+    dynamic_state: &mut DynamicState,
+) -> Vec<Arc<dyn FramebufferAbstract + Send + Sync>> where W: Send + Sync + 'static {
+    let dimensions = images[0].dimensions();
+
+    let viewport = Viewport {
+        origin: [0.0, 0.0],
+        dimensions: [dimensions[0] as f32, dimensions[1] as f32],
+        depth_range: 0.0..1.0,
+    };
+    dynamic_state.viewports = Some(vec![viewport]);
+
+    images
+        .iter()
+        .map(|image| {
+            Arc::new(
+                Framebuffer::start(render_pass.clone())
+                    .add(image.clone())
+                    .unwrap()
+                    .build()
+                    .unwrap(),
+            ) as Arc<dyn FramebufferAbstract + Send + Sync>
+        })
+        .collect::<Vec<_>>()
+}
+
 pub struct DrawText {
     device:             Arc<Device>,
     queue:              Arc<Queue>,
@@ -79,14 +107,16 @@ pub struct DrawText {
     framebuffers:       Vec<Arc<dyn FramebufferAbstract + Send + Sync>>,
     texts:              Vec<TextData>,
     buffer:             Arc<CpuAccessibleBuffer<[u8]>>,
+    dynamic_state:      DynamicState,
 }
 
 const CACHE_WIDTH: usize = 234;
 const CACHE_HEIGHT: usize = 234;
 
 impl DrawText {
-    pub fn new<W>(device: Arc<Device>, queue: Arc<Queue>, swapchain: Arc<Swapchain<W>>, images: &[Arc<SwapchainImage<W>>]) -> DrawText where W: Send + Sync + 'static {
-        let font_data = include_bytes!("fonts/DejaVuSans.ttf");
+    pub fn new<W>(device: Arc<Device>, queue: Arc<Queue>, swapchain: Arc<Swapchain<W>>, images: &[Arc<SwapchainImage<W>>], font:Fonts) -> DrawText where W: Send + Sync + 'static {
+        //let mut font_file = File::open(font.get_ttf()).unwrap();//include_bytes!(font.get_ttf());
+        let font_data=font.get_ttf();
         let font = Font::from_bytes(font_data as &[u8]).unwrap();
 
         let vs = vs::Shader::load(device.clone()).unwrap();
@@ -110,26 +140,29 @@ impl DrawText {
             }
         ).unwrap()) as Arc<dyn RenderPassAbstract + Send + Sync>;
 
-        let framebuffers = images.iter().map(|image| {
+    let mut dynamic_state = DynamicState {
+        line_width: None,
+        viewports: None,
+        scissors: None,
+        compare_mask: None,
+        write_mask: None,
+        reference: None,
+    };
+    let framebuffers =
+        window_size_dependent_setup(&images, render_pass.clone(), &mut dynamic_state);
+        /*let framebuffers = images.iter().map(|image| {
             Arc::new(
                 Framebuffer::start(render_pass.clone())
                 .add(image.clone()).unwrap()
                 .build().unwrap()
             ) as Arc<dyn FramebufferAbstract + Send + Sync>
         }).collect::<Vec<_>>();
-
+        let dims = [images[0].dimensions()[0] as f32,images[0].dimensions()[1] as f32];*/
         let pipeline = Arc::new(GraphicsPipeline::start()
             .vertex_input_single_buffer()
             .vertex_shader(vs.main_entry_point(), ())
             .triangle_list()
-            .viewports(iter::once(Viewport {
-                origin:      [0.0, 0.0],
-                depth_range: 0.0..1.0,
-                dimensions:  [
-                    images[0].dimensions()[0] as f32,
-                    images[0].dimensions()[1] as f32
-                ],
-            }))
+            .viewports_dynamic_scissors_irrelevant(1)
             .fragment_shader(fs.main_entry_point(), ())
             .blend_alpha_blending()
             .render_pass(Subpass::from(render_pass.clone(), 0).unwrap())
@@ -139,7 +172,6 @@ impl DrawText {
         let buffer = CpuAccessibleBuffer::<[u8]>::from_iter(
             device.clone(),
             BufferUsage::all(),
-            //cache_pixel_buffer.iter().cloned()
             vec![].iter().cloned()
         ).unwrap();
         DrawText {
@@ -152,6 +184,7 @@ impl DrawText {
             framebuffers,
             texts: vec!(),
             buffer,
+            dynamic_state,
         }
     }
 
@@ -195,7 +228,6 @@ impl DrawText {
         let screen_height = self.framebuffers[image_num].dimensions()[1];
         //let cache_pixel_buffer = &mut self.cache_pixel_buffer;
         let cache = &mut self.cache;
-
         // update texture cache
         /*cache.cache_queued(
             |rect, src_data| {
@@ -258,7 +290,7 @@ impl DrawText {
                 self.buffer.clone(),
                 cache_texture_write,
             ).unwrap()
-            .begin_render_pass(self.framebuffers[image_num].clone(), false, vec!(ClearValue::None)).unwrap();
+            .begin_render_pass(self.framebuffers[image_num].clone(), false, vec![ClearValue::None]).unwrap();
 
         // draw
         let mut vert1 = vec![];
@@ -319,7 +351,7 @@ impl DrawText {
         }
 
             let vertex_buffer = CpuAccessibleBuffer::from_iter(self.device.clone(), BufferUsage::all(), vert1.into_iter()).unwrap();
-            command_buffer = command_buffer.draw(self.pipeline.clone(), &DynamicState::none(), vertex_buffer.clone(), set.clone(), ()).unwrap();
+            command_buffer = command_buffer.draw(self.pipeline.clone(), &self.dynamic_state, vertex_buffer.clone(), set.clone(), ()).unwrap();
 
         command_buffer.end_render_pass().unwrap()
     }

@@ -1,5 +1,6 @@
 use crate::setup::*;
 use crate::vertex::*;
+use crate::fonts::*;
 use std::sync::Arc;
 use vulkano::buffer::{BufferUsage, CpuAccessibleBuffer};
 use vulkano::command_buffer::{AutoCommandBufferBuilder, DynamicState,AutoCommandBuffer};
@@ -62,6 +63,15 @@ fn window_size_dependent_setup(
 pub struct Image{
     pub image_data:Vec<u8>,
     pub dimensions:Dimensions,
+    pub width:u32,
+    pub height:u32,
+}
+impl Image{
+    pub fn dimensions(mut self,new_width:u32,new_height:u32)->Self{
+       self.width=new_width; 
+       self.height=new_height; 
+       self
+    }
 }
 ///the public canvas struct(there is actually an inner one for the static functions). it is
 ///mutithreading safe but needs a slightly different way to use:
@@ -111,6 +121,8 @@ pub struct Canvas {
     cursor_pos:(u16,u16),
     mouse:Mouse,
     mouse_scroll:MouseScroll,
+    font:Fonts,
+    text_color:[f32;4],
 }
 /*
 #[derive(Copy,Clone)]
@@ -226,8 +238,8 @@ impl Key{
     }
 }
 ///creates a defultary button
-pub fn button(x:u16,y:u16)->Button{
-    Button::new(x,y)
+pub fn button(x:u16,y:u16,text:&'static str)->Button{
+    Button::new(x,y,text)
 }
 impl Canvas {
     ///returns the current key that is pressed on the mouse.
@@ -319,6 +331,15 @@ impl Canvas {
     pub fn set_stroke(&mut self,stroke:bool){
         self.stroke = stroke;
     }
+    ///changes the text color
+    pub fn text_color(&mut self,color:Color){
+        let r = color.get_r();
+        let g = color.get_g();
+        let b = color.get_b();
+        let a = color.get_a();
+        self.text_color = mapping::map_colors([r, g, b, a]);
+    }
+    ///retruns the stroke state of the canvas
     ///disables stroke on the canvas.
     #[allow(non_snake_case)]
     pub fn noStroke(&mut self){
@@ -339,6 +360,9 @@ impl Canvas {
         self.fill = true;
         self.fill_color = mapping::map_colors([r, g, b, a]);
         //println!("{:?}",self.fill_color);
+    }
+    pub fn font(&mut self, font:Fonts){
+        self.font = font;
     }
     ///recieves f32 ext size and sets the canvases text_size to that size
     #[allow(non_snake_case)]
@@ -372,7 +396,7 @@ impl Canvas {
     fill_color: [1.0, 1.0, 1.0, 1.0],
     background_color: [1.0, 1.0, 1.0, 1.0],
     fps: 60.0,
-    text_size: 18.0,
+    text_size: 12.0,
     text_vec: vec![],
     fill_vec: vec![],
     tex_vec: vec![],
@@ -382,6 +406,8 @@ impl Canvas {
     cursor_pos:(0,0),
     mouse:Mouse::new(),
     mouse_scroll:MouseScroll::new(),
+    font:Fonts::DejaVuSans,
+    text_color:[0.0,0.0,0.0,1.0],
         }
     }
     ///this is the function used to run the animation
@@ -426,7 +452,7 @@ impl Canvas {
                 previous_frame_end =Box::new(env.previous_frame_end.unwrap());
             }
         };
-        let mut text = DrawText::new(env.device.clone(), env.queue.clone(), env.swapchain.clone(), &env.images);
+        let mut text = DrawText::new(env.device.clone(), env.queue.clone(), env.swapchain.clone(), &env.images,self.font);
         let mut counter1 = 0;
         let start = Instant::now();
         let mut end;
@@ -527,7 +553,7 @@ impl Canvas {
                         env.render_pass.clone(),
                         &mut env.dynamic_state,
                     );
-                    text = DrawText::new(env.device.clone(), env.queue.clone(), env.swapchain.clone(), &new_images);
+                    text = DrawText::new(env.device.clone(), env.queue.clone(), env.swapchain.clone(), &new_images,self.font);
                     recreate_swapchain = false;
                 }
                 let (image_num, acquire_future) =
@@ -544,7 +570,7 @@ impl Canvas {
                 let command_buffer:AutoCommandBuffer;
                 if self.text_vec.len()>0{
                         for txt in self.text_vec{
-                            text.queue_text(txt.position[0],txt.position[0], self.text_size, txt.color,txt.text);
+                            text.queue_text(txt.position[0],txt.position[1], self.text_size, txt.color,txt.text);
                         }
                         match set.clone(){
                             Some(set)=>{
@@ -1291,7 +1317,7 @@ pub fn bezierCurve(&mut self,ptvec: Vec<[i64; 2]>) {
         }
     }
 }
-///loopes over the array and uses curveVertex to create a catmull rom chain curve
+///loopes over the array and uses curveVertex to create a bezier curve
 pub fn curve(&mut self,ptvec: Vec<[i64; 2]>) {
     for i in 0..(ptvec.len() - 3) {
         self.bezierCurveVertex(
@@ -1343,10 +1369,9 @@ pub fn bezierCurveVertex(&mut self,x1: i64, y1: i64, x2: i64, y2: i64, x3: i64, 
 }
 ///drawes a text of a certain color and locaion on the canvas
 pub fn text(&mut self,x:u16,y:u16,text:&'static str){
-    
         self.text_vec.push(Stext{
             position: [x as f32,y as f32],
-            color: self.color,
+            color: self.text_color,
             text: text,
         });
 }
@@ -1372,17 +1397,17 @@ pub fn display(&mut self,img:Image,x11:u16,y11:u16){
             tex_coords:map_tex([x1,y1], scale),
         });
         self.tex_vec.push(Vertex {
-            position: map([x+(img.dimensions.width() as u16),y], scale),
+            position: map([x+(img.width as u16),y], scale),
             color: self.color,
             tex_coords: map_tex([x1+width_img as f32,y1], scale),
         });
         self.tex_vec.push(Vertex {
-            position: map([x+(img.dimensions.width() as u16),y+(img.dimensions.height() as u16)], scale),
+            position: map([x+(img.width as u16),y+(img.height as u16)], scale),
             color: self.color,
             tex_coords: map_tex([x1+width_img as f32,y1+height_img as f32], scale),
         });
         self.tex_vec.push(Vertex {
-            position: map([x+(img.dimensions.width() as u16),y+(img.dimensions.height() as u16)], scale),
+            position: map([x+(img.width as u16),y+(img.height as u16)], scale),
             color: self.color,
             tex_coords: map_tex([x1+width_img as f32,y1+height_img as f32], scale),
         });
@@ -1392,7 +1417,7 @@ pub fn display(&mut self,img:Image,x11:u16,y11:u16){
             tex_coords: map_tex([x1,y1], scale),
         });
         self.tex_vec.push(Vertex {
-            position: map([x,y+(img.dimensions.height() as u16)], scale),
+            position: map([x,y+(img.height as u16)], scale),
             color: self.color,
             tex_coords: map_tex([x1,y1+height_img as f32], scale),
         });
@@ -1412,14 +1437,5 @@ pub fn img(path:&str)->Image{
         image_data.resize((info.width * info.height * 4) as usize, 0);
         reader.next_frame(&mut image_data).unwrap();
         let dimensions = Dimensions::Dim2d { width: info.width, height: info.height };
-        /*let mut cnt =0;
-        let mut image_data:[Option<u8>;100000] = [None;100000];
-        for i in image_data1{
-            image_data[cnt] = Some(i);
-            cnt+=1;
-        }
-        for x in cnt..100000{
-            image_data[x] = None;
-        }*/
-        Image{image_data,dimensions}
+        Image{image_data,dimensions,width:dimensions.width(),height:dimensions.height()}
 }

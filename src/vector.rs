@@ -34,6 +34,18 @@ impl<T:Clone+Display+std::marker::Copy+Mul+Mul<T, Output = T>> Mul<T> for Vector
         vec1
     }
 }
+impl<T:Clone+Display+std::marker::Copy+Add+Add<T, Output = T>> Add<Vector<T>> for Vector<T>{
+    type Output = Self;
+    fn add(self,add1:Vector<T>)->Self{
+        let mut vec1 = Vector{vec:vec![]};
+        let mut c = 0;
+        for t in self.vec{
+            vec1.vec.push(t +add1.vec[c]);
+            c+=1;
+        }   
+        vec1
+    }
+}
 impl<T:Clone+Display+std::marker::Copy+Add+Add<T, Output = T>> Add<T> for Vector<T>{
     type Output = Self;
     fn add(self,add1:T)->Self{

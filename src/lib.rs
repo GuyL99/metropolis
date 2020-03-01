@@ -86,6 +86,7 @@ pub mod color;
 pub mod vector;
 pub mod math;
 pub mod elements;
+pub mod fonts;
 use color::*;
 use math::{bezier_points, catmull_rom_chain};
 pub static mut FPS:f32 = 0f32;

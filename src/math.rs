@@ -1,4 +1,5 @@
 use crate::compute::*;
+use crate::vector::*;
 use std::ops::Add;
 use std::ops::Div;
 use std::ops::Mul;
@@ -151,6 +152,11 @@ pub fn catmull_rom_chain(
     let t2 = (((x3 - x2).pow(2) + (y3 - y2).pow(2)) as f64).sqrt().sqrt() + t1 as f64;
     let t3 = (((x4 - x3).pow(2) + (y4 - y3).pow(2)) as f64).sqrt().sqrt() + t2 as f64;
     let t = linspace_in(t1, t2);
+    let tt = Vector{vec:linspace_in(t1, t2).to_vec()};
+    let ttt = [((tt.clone()*-1.0+t1)/(t1+t0)*(x1 as f64))+((tt.clone()-t0)/(t1-t0)*(x2 as f64)),(tt.clone()*-1.0+t1)/(t1+t0)*(y1 as f64)+((tt.clone()-t0)/(t1-t0)*(y2 as f64))];
+    let ttt2 = [((tt.clone()*-1.0+t2)/(t2+t1)*(x2 as f64))+((tt.clone()-t1)/(t2-t1)*(x3 as f64)),(tt.clone()*-1.0+t2)/(t2+t1)*(y2 as f64)+((tt.clone()-t1)/(t2-t1)*(y3 as f64))];
+    let ttt3 = [((tt.clone()*-1.0+t3)/(t3+t2)*(x3 as f64))+((tt.clone()-t2)/(t3-t2)*(x4 as f64)),(tt.clone()*-1.0+t3)/(t3+t2)*(y3 as f64)+((tt.clone()-t2)/(t3-t2)*(y4 as f64))];
+    println!("{:?}",ttt);
     let a11 = [
         compute_ops(
             compute_ops(

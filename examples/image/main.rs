@@ -9,11 +9,12 @@ fn main() {
     let mut g = 100;
     let mut b = 100;
     //let image = img("/home/guyl/Desktop/saitama.png");
-    let image = img("/home/guyl/Desktop/rust.png");
+    let image = img("/home/guyl/Desktop/rust.png");//.dimensions(500,500);
     let draw = move |mut canvas:Canvas|->Canvas{
         canvas.display(image.clone(),canvas.mouseX(),canvas.mouseY());
-        canvas.textSize(128);
-        canvas.text(100,100,"tttttadsas");
+        //canvas.textSize(128);
+        //canvas.text(100,100,"ttsstttadsas");
+        //canvas.text(500,500,"tttttadsas");
         /*println!("{}",Color::from((r,g,b)));
         canvas.background(rgb(r,g,b));
         if cnt%50 == 0{
